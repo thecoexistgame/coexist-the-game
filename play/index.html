@@ -996,7 +996,9 @@ function answerQuestion(selectedIndex) {
   const { question, kind } = queued;
   const correct = selectedIndex === question.correctIndex;
 
-answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
+  answerButtons.querySelectorAll('button').forEach(btn => {
+    btn.disabled = true;
+  });
 
   if (correct) {
     const rewards = question.rewards || {};
@@ -1011,7 +1013,8 @@ answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
     }
 
     const token = findTokenById(queued.tokenId);
-    const bonus = token ? (TOKEN_BONUSES[token.name] || {}) : {};
+    const bonusMap = typeof TOKEN_BONUSES !== 'undefined' ? TOKEN_BONUSES : {};
+    const bonus = token ? (bonusMap[token.name] || {}) : {};
 
     player.curiosity += bonus.curiosity || 0;
     player.harmony += bonus.harmony || 0;
