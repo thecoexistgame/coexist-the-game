@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coexist: The Game! — Browser Prototype v0.2</title>
+  <style>
+    :root {
+      --bg: #f5f1e8;
+      --panel: #fffaf0;
+      --line: #d8cfbf;
+      --text: #23201a;
+      --muted: #6e6557;
+      --harmony: #eadca7;
+      --conflict: #d8a0a0;
+      --dialogue: #bfe7e0;
+      --forum: #7fa8d8;
+      --temple: #c8b6e2;
+      --highlight: #2f7dff;
+      --blue: #3f7cff;
+      --red: #e34b4b;
+      --yellow: #d6aa1c;
+      --green: #2e9d52;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.05);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+    }
+
+    .sub {
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr 300px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .stats {
+      display: grid;
+      gap: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #efe5c2;
+      font-size: .82rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .turn {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #222;
+      color: #fff;
+    }
+
+    button.secondary {
+      background: #e8e0d2;
+      color: #222;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+      font-size: .95rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+    }
+
+    .swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1px solid rgba(0,0,0,.15);
+      flex: 0 0 auto;
+    }
+
+    .board-shell {
+      overflow-x: auto;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(11, 50px);
+      grid-template-rows: repeat(11, 50px);
+      gap: 4px;
+      justify-content: center;
+      min-width: max-content;
+    }
+
+    .cell {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.08);
+      display: grid;
+      place-items: center;
+      position: relative;
+      font-size: .66rem;
+      font-weight: 700;
+      color: rgba(0,0,0,.48);
+      user-select: none;
+      padding: 2px;
+    }
+
+    .harmony { background: var(--harmony); }
+    .conflict { background: var(--conflict); }
+    .dialogue { background: var(--dialogue); }
+    .forum { background: var(--forum); color: #fff; }
+    .temple { background: var(--temple); }
+    .start-blue, .start-red, .start-yellow, .start-green {
+      background: #efe8da;
+      border-style: dashed;
+    }
+
+    .selectable {
+      outline: 3px solid rgba(47,125,255,.55);
+      outline-offset: 1px;
+      cursor: pointer;
+    }
+
+    .legal {
+      box-shadow: inset 0 0 0 3px rgba(47,125,255,.85);
+      cursor: pointer;
+    }
+
+    .selected-token {
+      box-shadow: 0 0 0 4px rgba(47,125,255,.9);
+    }
+
+    .token-stack {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2px;
+      width: 100%;
+      min-height: 24px;
+    }
+
+    .token {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.92);
+      box-shadow: 0 2px 6px rgba(0,0,0,.25);
+      position: relative;
+    }
+
+    .token::after {
+      content: attr(data-symbol);
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      line-height: 1;
+      color: white;
+      text-shadow: 0 1px 1px rgba(0,0,0,.35);
+    }
+
+    .blue { background: var(--blue); }
+    .red { background: var(--red); }
+    .yellow { background: var(--yellow); }
+    .green { background: var(--green); }
+
+    .small {
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .log {
+      max-height: 220px;
+      overflow: auto;
+      padding-right: 6px;
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .log-entry {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f3ede1;
+      font-size: .92rem;
+    }
+
+    .score-grid, .map-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .score-row, .map-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: #f3ede1;
+      font-size: .92rem;
+    }
+
+    .count-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .count-badge {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: .8rem;
+      font-weight: 700;
+      background: #e8e0d2;
+    }
+
+    .map-token-list {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .perspective-chip {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: .8rem;
+      font-weight: 700;
+      background: #e2edf9;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.show { display: flex; }
+
+    .modal {
+      width: min(560px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.22);
+    }
+
+    .modal h3 { margin-top: 0; margin-bottom: 8px; }
+    .answers { display: grid; gap: 10px; margin-top: 14px; }
+    .answers button { text-align: left; }
+    .modal-note { margin-top: 12px; color: var(--muted); font-size: .92rem; }
+
+    @media (max-width: 1120px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">Browser Prototype v0.2</div>
+      <h1>Coexist: The Game!</h1>
+      <p class="sub">Now with multiple tokens per player, temple question popups, Harmony and Influence tracking, and a live Perspective Map.</p>
+    </section>
+
+    <section class="layout">
+      <aside class="stats">
+        <div class="panel">
+          <div id="turnLabel" class="turn">Current Turn: Blue</div>
+          <p class="small" id="statusText">Select one of your three tokens, then click one adjacent or diagonal space.</p>
+          <div class="controls">
+            <button id="endTurnBtn" class="secondary">End Turn</button>
+            <button id="resetBtn">Reset Game</button>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><span class="swatch" style="background: var(--harmony)"></span> Harmony Path</div>
+            <div class="legend-item"><span class="swatch" style="background: var(--conflict)"></span> Conflict Path</div>
+            <div class="legend-item"><span class="swatch" style="background: var(--dialogue)"></span> Dialogue Space</div>
+            <div class="legend-item"><span class="swatch" style="background: var(--forum)"></span> Forum</div>
+            <div class="legend-item"><span class="swatch" style="background: var(--temple)"></span> Temple</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <strong>Prototype Goals</strong>
+          <p class="small">Version 0.2 tests whether the game still feels intuitive once multiple pieces, scoring, and learning prompts are layered in.</p>
+        </div>
+
+        <div class="panel">
+          <strong>Move Log</strong>
+          <div id="log" class="log"></div>
+        </div>
+      </aside>
+
+      <main class="panel board-shell">
+        <div id="board" class="board" aria-label="Coexist board"></div>
+      </main>
+
+      <aside class="stats">
+        <div class="panel">
+          <strong>Player Scores</strong>
+          <div id="scoreGrid" class="score-grid" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="panel">
+          <strong>Perspective Map</strong>
+          <p class="small">Temple questions award perspective tokens that fill your growing map of understanding.</p>
+          <div id="mapGrid" class="map-grid" style="margin-top:10px;"></div>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal">
+      <h3 id="modalTitle">Temple Question</h3>
+      <p id="modalQuestion"></p>
+      <div id="answerButtons" class="answers"></div>
+      <div id="modalNote" class="modal-note"></div>
+    </div>
+  </div>
+
+  <script>
+    const boardLayout = [
+      ['SB','H','D','H','T','H','D','H','T','H','SR'],
+      ['H','H','C','H','H','D','H','C','H','H','H'],
+      ['D','C','H','H','T','H','T','H','H','C','D'],
+      ['H','H','H','C','H','H','H','C','H','H','H'],
+      ['T','H','D','H','H','D','H','H','D','H','T'],
+      ['H','D','H','H','D','F','D','H','H','D','H'],
+      ['T','H','D','H','H','D','H','H','D','H','T'],
+      ['H','H','H','C','H','H','H','C','H','H','H'],
+      ['D','C','H','H','T','H','T','H','H','C','D'],
+      ['H','H','C','H','H','D','H','C','H','H','H'],
+      ['SG','H','T','H','D','H','T','H','D','H','SY']
+    ];
+
+    const playerData = [
+      { id: 'blue', label: 'Blue', start: [0, 0] },
+      { id: 'red', label: 'Red', start: [0, 10] },
+      { id: 'green', label: 'Green', start: [10, 0] },
+      { id: 'yellow', label: 'Yellow', start: [10, 10] }
+    ];
+
+    const tokenTemplates = [
+      { symbol: 'F', name: 'Faith' },
+      { symbol: 'R', name: 'Reason' },
+      { symbol: 'S', name: 'Science' }
+    ];
+
+    const templeQuestions = [
+      {
+        question: 'Which tradition teaches the Four Noble Truths?',
+        answers: ['Judaism', 'Buddhism', 'Taoism'],
+        correct: 1,
+        perspective: '☸ Buddhism'
+      },
+      {
+        question: 'Which religion observes Ramadan fasting?',
+        answers: ['Islam', 'Hinduism', 'Christianity'],
+        correct: 0,
+        perspective: '☪ Islam'
+      },
+      {
+        question: 'Which philosophy teaches Yin and Yang?',
+        answers: ['Taoism', 'Judaism', 'Islam'],
+        correct: 0,
+        perspective: '☯ Taoism'
+      },
+      {
+        question: 'Which religion celebrates Passover?',
+        answers: ['Islam', 'Judaism', 'Taoism'],
+        correct: 1,
+        perspective: '✡ Judaism'
+      },
+      {
+        question: 'Which tradition celebrates Diwali?',
+        answers: ['Hinduism', 'Buddhism', 'Judaism'],
+        correct: 0,
+        perspective: '🕉 Hinduism'
+      },
+      {
+        question: 'Which belief system emphasizes human reason and ethics without religion?',
+        answers: ['Secular Humanism', 'Taoism', 'Islam'],
+        correct: 0,
+        perspective: '🧠 Humanism'
+      }
+    ];
+
+    function createInitialState() {
+      return {
+        players: playerData.map(p => ({
+          ...p,
+          harmony: 0,
+          influence: 0,
+          perspectives: []
+        })),
+        tokens: playerData.flatMap(p => tokenTemplates.map((template, idx) => ({
+          id: `${p.id}-${template.name.toLowerCase()}`,
+          player: p.id,
+          row: p.start[0],
+          col: p.start[1],
+          conflictStreak: 0,
+          symbol: template.symbol,
+          name: template.name,
+          tokenIndex: idx
+        }))),
+        currentPlayerIndex: 0,
+        selectedTokenId: null,
+        logEntries: ['Game started. Blue begins.'],
+        questionQueue: null
+      };
+    }
+
+    let state = createInitialState();
+
+    const boardEl = document.getElementById('board');
+    const turnLabel = document.getElementById('turnLabel');
+    const statusText = document.getElementById('statusText');
+    const logEl = document.getElementById('log');
+    const scoreGrid = document.getElementById('scoreGrid');
+    const mapGrid = document.getElementById('mapGrid');
+    const endTurnBtn = document.getElementById('endTurnBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalQuestion = document.getElementById('modalQuestion');
+    const answerButtons = document.getElementById('answerButtons');
+    const modalNote = document.getElementById('modalNote');
+
+    function currentPlayer() {
+      return state.players[state.currentPlayerIndex];
+    }
+
+    function getCellType(row, col) {
+      return boardLayout[row]?.[col] ?? null;
+    }
+
+    function tokensAt(row, col) {
+      return state.tokens.filter(t => t.row === row && t.col === col);
+    }
+
+    function findTokenById(id) {
+      return state.tokens.find(t => t.id === id);
+    }
+
+    function addLog(message) {
+      state.logEntries.unshift(message);
+      if (state.logEntries.length > 14) state.logEntries.pop();
+      renderLog();
+    }
+
+    function renderLog() {
+      logEl.innerHTML = '';
+      state.logEntries.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        div.textContent = entry;
+        logEl.appendChild(div);
+      });
+    }
+
+    function renderScores() {
+      scoreGrid.innerHTML = '';
+      state.players.forEach(player => {
+        const row = document.createElement('div');
+        row.className = 'score-row';
+        row.innerHTML = `
+          <strong>${player.label}</strong>
+          <div class="count-badges">
+            <span class="count-badge">Harmony: ${player.harmony}</span>
+            <span class="count-badge">Influence: ${player.influence}</span>
+          </div>
+        `;
+        scoreGrid.appendChild(row);
+      });
+    }
+
+    function renderMaps() {
+      mapGrid.innerHTML = '';
+      state.players.forEach(player => {
+        const row = document.createElement('div');
+        row.className = 'map-row';
+        row.innerHTML = `
+          <strong>${player.label}</strong>
+          <div class="map-token-list">${player.perspectives.length ? player.perspectives.map(p => `<span class="perspective-chip">${p}</span>`).join('') : '<span class="count-badge">None yet</span>'}</div>
+        `;
+        mapGrid.appendChild(row);
+      });
+    }
+
+    function isLegalMove(token, toRow, toCol) {
+      const dr = Math.abs(toRow - token.row);
+      const dc = Math.abs(toCol - token.col);
+      if (dr === 0 && dc === 0) return false;
+      if (dr > 1 || dc > 1) return false;
+      if (toRow < 0 || toRow > 10 || toCol < 0 || toCol > 10) return false;
+      const occupying = tokensAt(toRow, toCol);
+      if (occupying.some(t => t.player !== token.player)) return false;
+      if (occupying.length >= 3) return false;
+      return getCellType(toRow, toCol) !== null;
+    }
+
+    function legalMovesFor(token) {
+      const moves = [];
+      for (let r = token.row - 1; r <= token.row + 1; r++) {
+        for (let c = token.col - 1; c <= token.col + 1; c++) {
+          if (isLegalMove(token, r, c)) moves.push(`${r}-${c}`);
+        }
+      }
+      return moves;
+    }
+
+    function describeSpace(type) {
+      switch (type) {
+        case 'H': return 'Harmony Path';
+        case 'C': return 'Conflict Path';
+        case 'D': return 'Dialogue Space';
+        case 'F': return 'Forum';
+        case 'T': return 'Temple';
+        default: return 'Start Space';
+      }
+    }
+
+    function randomTempleQuestion() {
+      return templeQuestions[Math.floor(Math.random() * templeQuestions.length)];
+    }
+
+    function openTempleQuestion(token) {
+      const q = randomTempleQuestion();
+      state.questionQueue = { tokenId: token.id, playerId: token.player, question: q };
+      modalTitle.textContent = `Temple Question — ${token.name}`;
+      modalQuestion.textContent = q.question;
+      modalNote.textContent = 'Correct answer: gain 1 Harmony, 1 Influence, and the Perspective Token shown.';
+      answerButtons.innerHTML = '';
+      q.answers.forEach((answer, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = answer;
+        btn.addEventListener('click', () => answerTempleQuestion(index));
+        answerButtons.appendChild(btn);
+      });
+      modalBackdrop.classList.add('show');
+      modalBackdrop.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeTempleQuestion() {
+      modalBackdrop.classList.remove('show');
+      modalBackdrop.setAttribute('aria-hidden', 'true');
+      state.questionQueue = null;
+    }
+
+    function answerTempleQuestion(selectedIndex) {
+      const queued = state.questionQueue;
+      if (!queued) return;
+      const player = state.players.find(p => p.id === queued.playerId);
+      const { question } = queued;
+      if (selectedIndex === question.correct) {
+        player.harmony += 1;
+        player.influence += 1;
+        if (!player.perspectives.includes(question.perspective)) {
+          player.perspectives.push(question.perspective);
+        }
+        addLog(`${player.label} answered correctly at a Temple and gained ${question.perspective}.`);
+        statusText.textContent = `${player.label} gained Harmony, Influence, and a Perspective Token.`;
+      } else {
+        addLog(`${player.label} missed a Temple question.`);
+        statusText.textContent = `${player.label} missed the Temple question. No reward this time.`;
+      }
+      closeTempleQuestion();
+      renderScores();
+      renderMaps();
+    }
+
+    function nextTurn() {
+      state.selectedTokenId = null;
+      state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+      turnLabel.textContent = `Current Turn: ${currentPlayer().label}`;
+      statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
+      renderBoard();
+    }
+
+    function resetGame() {
+      state = createInitialState();
+      turnLabel.textContent = 'Current Turn: Blue';
+      statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
+      closeTempleQuestion();
+      renderAll();
+    }
+
+    function moveToken(token, toRow, toCol) {
+      const from = [token.row, token.col];
+      token.row = toRow;
+      token.col = toCol;
+      const type = getCellType(toRow, toCol);
+      const player = state.players.find(p => p.id === token.player);
+
+      if (type === 'C') token.conflictStreak += 1;
+      else token.conflictStreak = 0;
+
+      if (token.conflictStreak >= 2) {
+        const start = player.start;
+        token.row = start[0];
+        token.col = start[1];
+        token.conflictStreak = 0;
+        addLog(`${player.label}'s ${token.name} token hit two Conflict Paths in a row and returned to start.`);
+        statusText.textContent = 'Two Conflict moves in a row. That token returned to start.';
+      } else {
+        addLog(`${player.label} moved ${token.name} from (${from[0] + 1}, ${from[1] + 1}) to ${describeSpace(type)}.`);
+        statusText.textContent = `${describeSpace(type)} reached.`;
+      }
+
+      if (type === 'H') {
+        player.harmony += 1;
+        addLog(`${player.label} gained 1 Harmony on a Harmony Path.`);
+        statusText.textContent = `${player.label} gained 1 Harmony.`;
+      }
+
+      if (type === 'D') {
+        player.influence += 1;
+        addLog(`${player.label} gained 1 Influence on a Dialogue Space.`);
+        statusText.textContent = `${player.label} gained 1 Influence. Later this can trigger full Dialogue Cards.`;
+      }
+
+      if (type === 'T') {
+        statusText.textContent = 'Temple reached. Answer the question to gain rewards.';
+        openTempleQuestion(token);
+      }
+
+      if (type === 'F') {
+        player.influence += 2;
+        addLog(`${player.label} reached the Forum and gained 2 Influence.`);
+        statusText.textContent = `${player.label} reached the Forum and gained 2 Influence.`;
+      }
+
+      state.selectedTokenId = null;
+      renderBoard();
+      renderScores();
+      renderMaps();
+    }
+
+    function clickCell(row, col) {
+      if (state.questionQueue) return;
+      const clickedTokens = tokensAt(row, col);
+      const activePlayerId = currentPlayer().id;
+
+      if (clickedTokens.length) {
+        const ownToken = clickedTokens.find(t => t.player === activePlayerId);
+        if (!ownToken) {
+          statusText.textContent = 'You can only select your own token on your turn.';
+          return;
+        }
+        state.selectedTokenId = ownToken.id;
+        statusText.textContent = `${ownToken.name} selected. Click one adjacent or diagonal space.`;
+        renderBoard();
+        return;
+      }
+
+      if (!state.selectedTokenId) {
+        statusText.textContent = 'Select your token first.';
+        return;
+      }
+
+      const token = findTokenById(state.selectedTokenId);
+      if (!isLegalMove(token, row, col)) {
+        statusText.textContent = 'Illegal move. Move one adjacent or diagonal space onto an open cell.';
+        return;
+      }
+
+      moveToken(token, row, col);
+    }
+
+    function renderBoard() {
+      boardEl.innerHTML = '';
+      const activePlayerId = currentPlayer().id;
+      const selectedToken = state.selectedTokenId ? findTokenById(state.selectedTokenId) : null;
+      const legalMoves = selectedToken ? new Set(legalMovesFor(selectedToken)) : new Set();
+
+      for (let row = 0; row < boardLayout.length; row++) {
+        for (let col = 0; col < boardLayout[row].length; col++) {
+          const type = getCellType(row, col);
+          const cell = document.createElement('button');
+          cell.type = 'button';
+          cell.className = 'cell';
+          cell.addEventListener('click', () => clickCell(row, col));
+
+          if (type === 'H') cell.classList.add('harmony');
+          else if (type === 'C') cell.classList.add('conflict');
+          else if (type === 'D') cell.classList.add('dialogue');
+          else if (type === 'F') { cell.classList.add('forum'); cell.textContent = 'F'; }
+          else if (type === 'T') { cell.classList.add('temple'); cell.textContent = 'T'; }
+          else if (type === 'SB') { cell.classList.add('start-blue'); cell.textContent = 'B'; }
+          else if (type === 'SR') { cell.classList.add('start-red'); cell.textContent = 'R'; }
+          else if (type === 'SG') { cell.classList.add('start-green'); cell.textContent = 'G'; }
+          else if (type === 'SY') { cell.classList.add('start-yellow'); cell.textContent = 'Y'; }
+
+          const here = tokensAt(row, col);
+          if (here.length) {
+            cell.textContent = '';
+            const stack = document.createElement('div');
+            stack.className = 'token-stack';
+            here.forEach(token => {
+              const piece = document.createElement('div');
+              piece.className = `token ${token.player}`;
+              piece.dataset.symbol = token.symbol;
+              if (token.id === state.selectedTokenId) piece.classList.add('selected-token');
+              stack.appendChild(piece);
+            });
+            cell.appendChild(stack);
+            if (here.some(t => t.player === activePlayerId)) cell.classList.add('selectable');
+          }
+
+          if (legalMoves.has(`${row}-${col}`)) cell.classList.add('legal');
+          boardEl.appendChild(cell);
+        }
+      }
+    }
+
+    function renderAll() {
+      renderBoard();
+      renderLog();
+      renderScores();
+      renderMaps();
+    }
+
+    endTurnBtn.addEventListener('click', () => {
+      if (state.questionQueue) return;
+      addLog(`${currentPlayer().label} ended their turn.`);
+      nextTurn();
+    });
+
+    resetBtn.addEventListener('click', resetGame);
+
+    renderAll();
+  </script>
+</body>
+</html>
