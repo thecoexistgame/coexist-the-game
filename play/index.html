@@ -422,6 +422,8 @@ let templeQuestions = [];
 let sayings = [];
 
 let dialogueCards = [];
+
+let conflictCards = [];
     
     const boardLayout = [
       ['SB','H','Q','H','T','H','Q','H','T','H','SR'],
@@ -522,12 +524,14 @@ async function loadGameData() {
     const templeResponse = await fetch('./data/temple.json');
     const sayingsResponse = await fetch('./data/sayings.json');
     const dialogueResponse = await fetch('./data/dialogue.json');
+    const conflictResponse = await fetch('./data/conflict.json');
 
     if (
       !curiosityResponse.ok ||
       !templeResponse.ok ||
       !sayingsResponse.ok ||
-      !dialogueResponse.ok
+      !dialogueResponse.ok ||
+      !conflictResponse.ok
     ) {
       throw new Error('Failed to load game data');
     }
@@ -536,18 +540,20 @@ async function loadGameData() {
     templeQuestions = await templeResponse.json();
     sayings = await sayingsResponse.json();
     dialogueCards = await dialogueResponse.json();
+    conflictCards = await conflictResponse.json();
 
     addLog(`Loaded ${curiosityQuestions.length} Curiosity encounters.`);
     addLog(`Loaded ${templeQuestions.length} Temple encounters.`);
     addLog(`Loaded ${sayings.length} sayings.`);
     addLog(`Loaded ${dialogueCards.length} Dialogue cards.`);
+    addLog(`Loaded ${conflictCards.length} Conflict cards.`);
   } catch (error) {
     console.error(error);
     addLog('Error loading game data.');
     statusText.textContent = 'Error loading game data.';
   }
 }
-
+    
 function renderSaying() {
   const sayingEl = document.getElementById('dailySaying');
   if (!sayingEl) return;
@@ -713,6 +719,41 @@ function queueDialogue(token) {
   modalBackdrop.setAttribute('aria-hidden', 'false');
 }
 
+function queueConflict(playerId) {
+  const card = randomFrom(conflictCards);
+
+  if (!card) {
+    statusText.textContent = 'No conflict cards available yet.';
+    addLog('No conflict cards were available.');
+    return;
+  }
+
+  state.questionQueue = {
+    kind: 'conflict',
+    playerId,
+    card
+  };
+
+  modalTitle.textContent = `Conflict Encounter`;
+  modalQuestion.textContent = card.prompt;
+  modalNote.textContent = 'Choose your response carefully. Conflict can be repaired, escalated, or redirected.';
+  modalResult.textContent = '';
+  modalResult.className = 'modal-result';
+
+  answerButtons.innerHTML = '';
+
+  card.choices.forEach((choice, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = choice;
+    btn.addEventListener('click', () => answerConflict(index));
+    answerButtons.appendChild(btn);
+  });
+
+  modalBackdrop.classList.add('show');
+  modalBackdrop.setAttribute('aria-hidden', 'false');
+}
+    
    function answerDialogue(selectedIndex) {
   const queued = state.questionQueue;
   if (!queued || queued.kind !== 'dialogue') return;
@@ -757,6 +798,55 @@ function queueDialogue(token) {
   renderScores();
   renderMaps();
 } 
+
+function answerConflict(selectedIndex) {
+  const queued = state.questionQueue;
+  if (!queued || queued.kind !== 'conflict') return;
+
+  const player = state.players.find(p => p.id === queued.playerId);
+  const outcome = queued.card.outcomes?.[selectedIndex];
+
+  answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
+
+  if (!outcome) {
+    modalResult.textContent = 'No outcome found for that choice.';
+    modalResult.className = 'modal-result failure';
+  } else {
+    player.curiosity += outcome.curiosity || 0;
+    player.harmony += outcome.harmony || 0;
+    player.influence += outcome.influence || 0;
+
+    if (player.influence < 0) player.influence = 0;
+    if (player.harmony < 0) player.harmony = 0;
+    if (player.curiosity < 0) player.curiosity = 0;
+
+    if (outcome.conflict) {
+      modalResult.textContent = outcome.message || 'Conflict increased.';
+      modalResult.className = 'modal-result failure';
+      addLog(`${player.label} escalated a conflict encounter.`);
+      statusText.textContent = `${player.label} increased tension during conflict.`;
+    } else {
+      modalResult.textContent = outcome.message || 'Conflict resolved thoughtfully.';
+      modalResult.className = 'modal-result success';
+      addLog(`${player.label} resolved a conflict encounter.`);
+      statusText.textContent = `${player.label} gained something from navigating conflict.`;
+    }
+  }
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'secondary';
+  closeBtn.textContent = 'Continue';
+  closeBtn.addEventListener('click', () => {
+    closeQuestion();
+    renderScores();
+    renderMaps();
+    maybeDeclareWinner(player);
+  });
+
+  answerButtons.appendChild(closeBtn);
+  renderScores();
+  renderMaps();
+}
     
     function closeQuestion() {
   modalBackdrop.classList.remove('show');
@@ -817,20 +907,33 @@ function answerQuestion(selectedIndex) {
       `${player.label} answered a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question correctly` +
       `${question.perspective ? ` and gained ${question.perspective}` : ''}.`
     );
+} else {
+  const correctAnswer =
+    question.choices?.[question.correctIndex] ??
+    question.answers?.[question.correctIndex] ??
+    'Unknown';
 
+  modalResult.textContent = `Incorrect — correct answer: ${correctAnswer}`;
+  modalResult.className = 'modal-result failure';
+
+  addLog(`${player.label} missed a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question.`);
+  statusText.textContent = `${player.label} missed the question and triggered a conflict encounter.`;
+
+  const conflictBtn = document.createElement('button');
+  conflictBtn.className = 'secondary';
+  conflictBtn.textContent = 'Resolve Conflict';
+  conflictBtn.addEventListener('click', () => {
+    closeQuestion();
+    queueConflict(player.id);
+  });
+
+  answerButtons.appendChild(conflictBtn);
+  renderScores();
+  renderMaps();
+  return;
+}
     statusText.textContent = `${player.label} answered correctly and gained rewards.`;
-  } else {
-    const correctAnswer =
-      question.choices?.[question.correctIndex] ??
-      question.answers?.[question.correctIndex] ??
-      'Unknown';
-
-    modalResult.textContent = `Incorrect — correct answer: ${correctAnswer}`;
-    modalResult.className = 'modal-result failure';
-
-    addLog(`${player.label} missed a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question.`);
-    statusText.textContent = `${player.label} missed the question. No reward this time.`;
-  }
+ 
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'secondary';
