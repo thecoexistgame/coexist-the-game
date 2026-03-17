@@ -414,6 +414,8 @@
   <script>
 
 let curiosityQuestions = [];
+
+let templeQuestions = [];    
     
     const boardLayout = [
       ['SB','H','Q','H','T','H','Q','H','T','H','SR'],
@@ -440,37 +442,6 @@ let curiosityQuestions = [];
       { symbol: 'F', name: 'Faith' },
       { symbol: 'R', name: 'Reason' },
       { symbol: 'S', name: 'Science' }
-    ];
-
-    const templeQuestions = [
-      {
-        question: 'Which teaching includes the phrase “Love your neighbor”?',
-        answers: ['Christianity', 'Taoism', 'Buddhism'],
-        correct: 0,
-        perspective: '✝ Christianity',
-        rewardText: 'Gain 1 Harmony, 1 Influence, and the Christianity Perspective.'
-      },
-      {
-        question: 'Which tradition practices daily prayers facing Mecca?',
-        answers: ['Islam', 'Buddhism', 'Taoism'],
-        correct: 0,
-        perspective: '☪ Islam',
-        rewardText: 'Gain 1 Harmony, 1 Influence, and the Islam Perspective.'
-      },
-      {
-        question: 'Which tradition teaches the Middle Way?',
-        answers: ['Buddhism', 'Judaism', 'Islam'],
-        correct: 0,
-        perspective: '☸ Buddhism',
-        rewardText: 'Gain 1 Harmony, 1 Influence, and the Buddhism Perspective.'
-      },
-      {
-        question: 'Which tradition celebrates Passover?',
-        answers: ['Islam', 'Judaism', 'Taoism'],
-        correct: 1,
-        perspective: '✡ Judaism',
-        rewardText: 'Gain 1 Harmony, 1 Influence, and the Judaism Perspective.'
-      }
     ];
 
     function createInitialState() {
@@ -542,16 +513,21 @@ let curiosityQuestions = [];
 async function loadGameData() {
   try {
     const curiosityResponse = await fetch('./data/curiosity.json');
-    if (!curiosityResponse.ok) {
-      throw new Error(`Failed to load curiosity.json: ${curiosityResponse.status}`);
+    const templeResponse = await fetch('./data/temple.json');
+
+    if (!curiosityResponse.ok || !templeResponse.ok) {
+      throw new Error('Failed to load game data');
     }
 
     curiosityQuestions = await curiosityResponse.json();
+    templeQuestions = await templeResponse.json();
+
     addLog(`Loaded ${curiosityQuestions.length} Curiosity encounters.`);
+    addLog(`Loaded ${templeQuestions.length} Temple encounters.`);
   } catch (error) {
     console.error(error);
-    addLog('Could not load Curiosity encounters.');
-    statusText.textContent = 'Error loading curiosity encounters.';
+    addLog('Error loading game data.');
+    statusText.textContent = 'Error loading game data.';
   }
 }
     
