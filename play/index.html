@@ -412,6 +412,9 @@
   </div>
 
   <script>
+
+let curiosityQuestions = [];
+    
     const boardLayout = [
       ['SB','H','Q','H','T','H','Q','H','T','H','SR'],
       ['H','H','C','H','H','D','H','C','H','H','H'],
@@ -437,51 +440,6 @@
       { symbol: 'F', name: 'Faith' },
       { symbol: 'R', name: 'Reason' },
       { symbol: 'S', name: 'Science' }
-    ];
-
-    const curiosityQuestions = [
-      {
-        question: 'Which tradition teaches the Eightfold Path?',
-        answers: ['Taoism', 'Buddhism', 'Judaism'],
-        correct: 1,
-        perspective: '☸ Buddhism',
-        rewardText: 'Gain 1 Curiosity and the Buddhism Perspective.'
-      },
-      {
-        question: 'Which religion observes Ramadan fasting?',
-        answers: ['Islam', 'Hinduism', 'Christianity'],
-        correct: 0,
-        perspective: '☪ Islam',
-        rewardText: 'Gain 1 Curiosity and the Islam Perspective.'
-      },
-      {
-        question: 'Which tradition celebrates Diwali?',
-        answers: ['Hinduism', 'Buddhism', 'Judaism'],
-        correct: 0,
-        perspective: '🕉 Hinduism',
-        rewardText: 'Gain 1 Curiosity and the Hinduism Perspective.'
-      },
-      {
-        question: 'Which philosophy teaches Yin and Yang?',
-        answers: ['Taoism', 'Judaism', 'Islam'],
-        correct: 0,
-        perspective: '☯ Taoism',
-        rewardText: 'Gain 1 Curiosity and the Taoism Perspective.'
-      },
-      {
-        question: 'Which religion considers the Torah sacred scripture?',
-        answers: ['Christianity', 'Judaism', 'Hinduism'],
-        correct: 1,
-        perspective: '✡ Judaism',
-        rewardText: 'Gain 1 Curiosity and the Judaism Perspective.'
-      },
-      {
-        question: 'Which belief system emphasizes human reason and ethics without religion?',
-        answers: ['Secular Humanism', 'Taoism', 'Islam'],
-        correct: 0,
-        perspective: '🧠 Humanism',
-        rewardText: 'Gain 1 Curiosity and the Humanism Perspective.'
-      }
     ];
 
     const templeQuestions = [
@@ -581,6 +539,22 @@
       renderLog();
     }
 
+async function loadGameData() {
+  try {
+    const curiosityResponse = await fetch('./data/curiosity.json');
+    if (!curiosityResponse.ok) {
+      throw new Error(`Failed to load curiosity.json: ${curiosityResponse.status}`);
+    }
+
+    curiosityQuestions = await curiosityResponse.json();
+    addLog(`Loaded ${curiosityQuestions.length} Curiosity encounters.`);
+  } catch (error) {
+    console.error(error);
+    addLog('Could not load Curiosity encounters.');
+    statusText.textContent = 'Error loading curiosity encounters.';
+  }
+}
+    
     function renderLog() {
       logEl.innerHTML = '';
       state.logEntries.forEach(entry => {
@@ -660,29 +634,47 @@
       }
     }
 
-    function randomFrom(list) {
-      return list[Math.floor(Math.random() * list.length)];
-    }
+function randomFrom(list) {
+  if (!Array.isArray(list) || list.length === 0) return null;
+  return list[Math.floor(Math.random() * list.length)];
+}
 
-    function queueQuestion(kind, token) {
-      const q = kind === 'temple' ? randomFrom(templeQuestions) : randomFrom(curiosityQuestions);
-      state.questionQueue = { kind, tokenId: token.id, playerId: token.player, question: q };
-      modalTitle.textContent = kind === 'temple' ? `Temple Question — ${token.name}` : `Curiosity Question — ${token.name}`;
-      modalQuestion.textContent = q.question;
-      modalNote.textContent = q.rewardText;
-      modalResult.textContent = '';
-      modalResult.className = 'modal-result';
-      answerButtons.innerHTML = '';
-      q.answers.forEach((answer, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'answer-btn';
-        btn.textContent = answer;
-        btn.addEventListener('click', () => answerQuestion(index));
-        answerButtons.appendChild(btn);
-      });
-      modalBackdrop.classList.add('show');
-      modalBackdrop.setAttribute('aria-hidden', 'false');
-    }
+function queueQuestion(kind, token) {
+  const source = kind === 'temple' ? templeQuestions : curiosityQuestions;
+  const q = randomFrom(source);
+
+  if (!q) {
+    statusText.textContent = `No ${kind} questions available yet.`;
+    addLog(`No ${kind} questions were available.`);
+    return;
+  }
+
+  state.questionQueue = { kind, tokenId: token.id, playerId: token.player, question: q };
+
+  modalTitle.textContent =
+    kind === 'temple'
+      ? `Temple Question — ${token.name}`
+      : `Curiosity Encounter — ${token.name}`;
+
+  modalQuestion.textContent = q.prompt || q.question;
+  modalNote.textContent = q.rewardText || '';
+
+  modalResult.textContent = '';
+  modalResult.className = 'modal-result';
+
+  answerButtons.innerHTML = '';
+
+  q.choices.forEach((answer, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = answer;
+    btn.addEventListener('click', () => answerQuestion(index));
+    answerButtons.appendChild(btn);
+  });
+
+  modalBackdrop.classList.add('show');
+  modalBackdrop.setAttribute('aria-hidden', 'false');
+}
 
     function closeQuestion() {
       modalBackdrop.classList.remove('show');
@@ -710,50 +702,69 @@
       addLog(`${player.label} reached 10 Influence and won the game.`);
     }
 
-    function answerQuestion(selectedIndex) {
-      const queued = state.questionQueue;
-      if (!queued) return;
-      const player = state.players.find(p => p.id === queued.playerId);
-      const { question, kind } = queued;
-      const correct = selectedIndex === question.correct;
+function answerQuestion(selectedIndex) {
+  const queued = state.questionQueue;
+  if (!queued) return;
 
-      answerButtons.querySelectorAll('button').forEach(btn => btn.disabled = true);
+  const player = state.players.find(p => p.id === queued.playerId);
+  const { question, kind } = queued;
+  const correct = selectedIndex === question.correctIndex;
 
-      if (correct) {
-        if (kind === 'temple') {
-          player.harmony += 1;
-          player.influence += 1;
-        } else {
-          player.curiosity += 1;
-        }
-        if (!player.perspectives.includes(question.perspective)) {
-          player.perspectives.push(question.perspective);
-        }
-        modalResult.textContent = `Correct — ${question.rewardText}`;
-        modalResult.className = 'modal-result success';
-        addLog(`${player.label} answered a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question correctly and gained ${question.perspective}.`);
-        statusText.textContent = `${player.label} answered correctly and gained rewards.`;
-      } else {
-        modalResult.textContent = `Incorrect — correct answer: ${question.answers[question.correct]}`;
-        modalResult.className = 'modal-result failure';
-        addLog(`${player.label} missed a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question.`);
-        statusText.textContent = `${player.label} missed the question. No reward this time.`;
-      }
+  answerButtons.querySelectorAll('button').forEach(btn => btn.disabled = true);
 
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'secondary';
-      closeBtn.textContent = 'Continue Turn';
-      closeBtn.addEventListener('click', () => {
-        closeQuestion();
-        renderScores();
-        renderMaps();
-        maybeDeclareWinner(player);
-      });
-      answerButtons.appendChild(closeBtn);
-      renderScores();
-      renderMaps();
+  if (correct) {
+    const rewards = question.rewards || {};
+
+    if (kind === 'temple') {
+      player.harmony += rewards.harmony || 1;
+      player.influence += rewards.influence || 1;
+    } else {
+      player.curiosity += rewards.curiosity || 1;
+      player.harmony += rewards.harmony || 0;
+      player.influence += rewards.influence || 0;
     }
 
+    if (question.perspective && !player.perspectives.includes(question.perspective)) {
+      player.perspectives.push(question.perspective);
+    }
+
+    modalResult.textContent = `Correct — ${question.rewardText || 'Rewards gained.'}`;
+    modalResult.className = 'modal-result success';
+
+    addLog(
+      `${player.label} answered a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question correctly` +
+      `${question.perspective ? ` and gained ${question.perspective}` : ''}.`
+    );
+
+    statusText.textContent = `${player.label} answered correctly and gained rewards.`;
+  } else {
+    const correctAnswer =
+      question.choices?.[question.correctIndex] ??
+      question.answers?.[question.correctIndex] ??
+      'Unknown';
+
+    modalResult.textContent = `Incorrect — correct answer: ${correctAnswer}`;
+    modalResult.className = 'modal-result failure';
+
+    addLog(`${player.label} missed a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question.`);
+    statusText.textContent = `${player.label} missed the question. No reward this time.`;
+  }
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'secondary';
+  closeBtn.textContent = 'Continue';
+  closeBtn.addEventListener('click', () => {
+    closeQuestion();
+    renderScores();
+    renderMaps();
+    maybeDeclareWinner(player);
+  });
+
+  answerButtons.appendChild(closeBtn);
+  renderScores();
+  renderMaps();
+}
+    
     function nextTurn() {
       if (state.winner) return;
       state.selectedTokenId = null;
@@ -930,7 +941,10 @@
 
     resetBtn.addEventListener('click', resetGame);
 
-    renderAll();
+ (async function initGame() {
+  await loadGameData();
+  renderAll();
+})();
   </script>
 </body>
 </html>
