@@ -381,6 +381,7 @@ button.danger{
       <aside class="stats">
         <div class="panel">
           <div id="turnLabel" class="turn">Current Turn: Blue</div>
+          <p id="selectedTokenText" class="small" style="margin-top:8px;">Selected Token: None</p>
           <p class="small" id="statusText">Select one of your three tokens, then click one adjacent or diagonal space.</p>
 <div class="controls">
   <button id="endTurnBtn" class="secondary">End Turn</button>
@@ -1022,6 +1023,7 @@ function answerQuestion(selectedIndex) {
       state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
       turnLabel.textContent = `Current Turn: ${currentPlayer().label}`;
       statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
+      selectedTokenText.textContent = 'Selected Token: None';
       renderBoard();
     }
 
@@ -1029,6 +1031,7 @@ function answerQuestion(selectedIndex) {
       state = createInitialState();
       turnLabel.textContent = 'Current Turn: Blue';
       statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
+      selectedTokenText.textContent = 'Selected Token: None';
       closeQuestion();
       renderAll();
       renderSaying();
@@ -1084,6 +1087,7 @@ function answerQuestion(selectedIndex) {
       }
 
       state.selectedTokenId = null;
+      selectedTokenText.textContent = 'Selected Token: None';
       renderBoard();
       renderScores();
       renderMaps();
@@ -1101,10 +1105,11 @@ function answerQuestion(selectedIndex) {
           statusText.textContent = 'You can only select your own token on your turn.';
           return;
         }
-        state.selectedTokenId = ownToken.id;
-        statusText.textContent = `${ownToken.name} selected. Click one adjacent or diagonal space.`;
-        renderBoard();
-        return;
+state.selectedTokenId = ownToken.id;
+selectedTokenText.textContent = `Selected Token: ${ownToken.name}`;
+statusText.textContent = `${ownToken.name} selected. Click one adjacent or diagonal space.`;
+renderBoard();
+return;
       }
 
       if (!state.selectedTokenId) {
