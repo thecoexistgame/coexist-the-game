@@ -110,8 +110,13 @@
     button.secondary {
       background: #e8e0d2;
       color: #222;
+      font-weight: 700;
     }
 
+    button.secondary:hover {
+      background: #ddd2be;
+    }
+    
     button.answer-btn {
       text-align: left;
       width: 100%;
@@ -736,8 +741,8 @@
       }
 
       const closeBtn = document.createElement('button');
-      closeBtn.className = 'answer-btn secondary';
-      closeBtn.textContent = 'Continue';
+      closeBtn.className = 'secondary';
+      closeBtn.textContent = 'Continue Turn';
       closeBtn.addEventListener('click', () => {
         closeQuestion();
         renderScores();
