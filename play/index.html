@@ -676,6 +676,42 @@ function renderSaying() {
       });
     }
 
+function getMovePreview(token, row, col) {
+  const type = getCellType(row, col);
+  const player = state.players.find(p => p.id === token.player);
+
+  switch (type) {
+    case 'H':
+      return 'Harmony Path — gain 1 Harmony.';
+    case 'Q':
+      return 'Curiosity Space — answer a question to gain Curiosity and Perspective.';
+    case 'T':
+      return 'Temple — answer a deeper question for Harmony, Influence, and Perspective.';
+    case 'D':
+      return 'Dialogue Space — choose how to respond and shape the outcome.';
+    case 'C':
+      if (player.harmony > 0) {
+        return 'Conflict Path — lose 1 Harmony.';
+      }
+      if (player.influence > 0) {
+        return 'Conflict Path — lose 1 Influence.';
+      }
+      return 'Conflict Path — risky route with no Harmony or Influence left to lose.';
+    case 'F':
+      if (player.harmony < 2 || player.curiosity < 1) {
+        return 'Forum locked — requires at least 2 Harmony and 1 Curiosity.';
+      }
+      return 'Forum — enter and gain Influence.';
+    case 'SB':
+    case 'SR':
+    case 'SG':
+    case 'SY':
+      return 'Start Space.';
+    default:
+      return '';
+  }
+}
+    
     function isLegalMove(token, toRow, toCol) {
       const type = getCellType(toRow, toCol);
       const dr = Math.abs(toRow - token.row);
@@ -1107,8 +1143,24 @@ function answerQuestion(selectedIndex) {
       const type = getCellType(toRow, toCol);
       const player = state.players.find(p => p.id === token.player);
 
-      if (type === 'C') token.conflictStreak += 1;
-      else token.conflictStreak = 0;
+      if (type === 'C') {
+  token.conflictStreak += 1;
+
+  if (player.harmony > 0) {
+    player.harmony -= 1;
+    addLog(`${player.label}'s ${token.name} encountered tension on a Conflict Path and lost 1 Harmony.`);
+    statusText.textContent = `${player.label} lost 1 Harmony on a Conflict Path.`;
+  } else if (player.influence > 0) {
+    player.influence -= 1;
+    addLog(`${player.label}'s ${token.name} encountered tension on a Conflict Path and lost 1 Influence.`);
+    statusText.textContent = `${player.label} lost 1 Influence on a Conflict Path.`;
+  } else {
+    addLog(`${player.label}'s ${token.name} crossed a Conflict Path, but had no Harmony or Influence to lose.`);
+    statusText.textContent = `${player.label} crossed a Conflict Path.`;
+  }
+} else {
+  token.conflictStreak = 0;
+}
 
       if (token.conflictStreak >= 2) {
         const start = player.start;
@@ -1198,13 +1250,13 @@ if (clickedTokens.length) {
         }
       }
 
-      if (!isLegalMove(token, row, col)) {
-        statusText.textContent = 'Illegal move. Move one adjacent or diagonal space onto an open cell.';
-        return;
-      }
+  if (!isLegalMove(token, row, col)) {
+  statusText.textContent = 'Illegal move. Move one adjacent or diagonal space onto an open cell.';
+  return;
+}
 
-      moveToken(token, row, col);
-    }
+statusText.textContent = getMovePreview(token, row, col);
+moveToken(token, row, col);
 
     function renderBoard() {
       boardEl.innerHTML = '';
@@ -1219,7 +1271,27 @@ if (clickedTokens.length) {
           cell.type = 'button';
           cell.className = 'cell';
           cell.addEventListener('click', () => clickCell(row, col));
+          cell.addEventListener('mouseenter', () => {
+  if (state.questionQueue || state.winner || !state.selectedTokenId) return;
 
+  const token = findTokenById(state.selectedTokenId);
+  if (!token) return;
+
+  if (isLegalMove(token, row, col)) {
+    statusText.textContent = getMovePreview(token, row, col);
+  }
+});
+          
+cell.addEventListener('mouseleave', () => {
+  if (state.questionQueue || state.winner) return;
+
+  if (state.selectedTokenId) {
+    const token = findTokenById(state.selectedTokenId);
+    if (token) {
+      statusText.textContent = `${token.name} selected. Click one adjacent or diagonal space.`;
+    }
+  }
+});
           if (type === 'H') cell.classList.add('harmony');
           else if (type === 'C') cell.classList.add('conflict');
           else if (type === 'D') cell.classList.add('dialogue');
