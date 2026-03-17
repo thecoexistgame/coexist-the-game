@@ -491,6 +491,12 @@ let sayings = [];
 let dialogueCards = [];
 
 let conflictCards = [];
+
+const TOKEN_BONUSES = {
+  Faith: { harmony: 1 },
+  Reason: { influence: 1 },
+  Science: { curiosity: 1 }
+};
     
     const boardLayout = [
       ['SB','H','Q','H','T','H','Q','H','T','H','SR'],
@@ -879,6 +885,13 @@ function queueConflict(playerId) {
     }
   }
 
+const token = findTokenById(queued.tokenId);
+const bonus = TOKEN_BONUSES[token.name] || {};
+
+player.curiosity += bonus.curiosity || 0;
+player.harmony += bonus.harmony || 0;
+player.influence += bonus.influence || 0;
+     
   const closeBtn = document.createElement('button');
   closeBtn.className = 'secondary';
   closeBtn.textContent = 'Continue';
@@ -926,6 +939,12 @@ function answerConflict(selectedIndex) {
       addLog(`${player.label} resolved a conflict encounter.`);
       statusText.textContent = `${player.label} gained something from navigating conflict.`;
     }
+    const token = findTokenById(queued.tokenId);
+const bonus = TOKEN_BONUSES[token.name] || {};
+
+player.curiosity += bonus.curiosity || 0;
+player.harmony += bonus.harmony || 0;
+player.influence += bonus.influence || 0;
   }
 
   const closeBtn = document.createElement('button');
@@ -991,6 +1010,13 @@ function answerQuestion(selectedIndex) {
       player.influence += rewards.influence || 0;
     }
 
+const token = findTokenById(queued.tokenId);
+const bonus = TOKEN_BONUSES[token.name] || {};
+
+player.curiosity += bonus.curiosity || 0;
+player.harmony += bonus.harmony || 0;
+player.influence += bonus.influence || 0;
+    
     if (question.perspective && !player.perspectives.includes(question.perspective)) {
       player.perspectives.push(question.perspective);
     }
