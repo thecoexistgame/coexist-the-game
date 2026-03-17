@@ -855,7 +855,7 @@ function queueConflict(playerId) {
   modalBackdrop.setAttribute('aria-hidden', 'false');
 }
     
-   function answerDialogue(selectedIndex) {
+function answerDialogue(selectedIndex) {
   const queued = state.questionQueue;
   if (!queued || queued.kind !== 'dialogue') return;
 
@@ -878,6 +878,13 @@ function queueConflict(playerId) {
       addLog(`${player.label} chose a tense dialogue path.`);
       statusText.textContent = `${player.label} increased tension during dialogue.`;
     } else {
+      const token = findTokenById(queued.tokenId);
+      const bonus = TOKEN_BONUSES[token.name] || {};
+
+      player.curiosity += bonus.curiosity || 0;
+      player.harmony += bonus.harmony || 0;
+      player.influence += bonus.influence || 0;
+
       modalResult.textContent = outcome.message || 'Dialogue resolved positively.';
       modalResult.className = 'modal-result success';
       addLog(`${player.label} completed a dialogue encounter successfully.`);
@@ -885,13 +892,6 @@ function queueConflict(playerId) {
     }
   }
 
-const token = findTokenById(queued.tokenId);
-const bonus = TOKEN_BONUSES[token.name] || {};
-
-player.curiosity += bonus.curiosity || 0;
-player.harmony += bonus.harmony || 0;
-player.influence += bonus.influence || 0;
-     
   const closeBtn = document.createElement('button');
   closeBtn.className = 'secondary';
   closeBtn.textContent = 'Continue';
@@ -905,7 +905,7 @@ player.influence += bonus.influence || 0;
   answerButtons.appendChild(closeBtn);
   renderScores();
   renderMaps();
-} 
+}
 
 function answerConflict(selectedIndex) {
   const queued = state.questionQueue;
