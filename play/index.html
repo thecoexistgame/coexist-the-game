@@ -914,7 +914,9 @@ function answerConflict(selectedIndex) {
   const player = state.players.find(p => p.id === queued.playerId);
   const outcome = queued.card.outcomes?.[selectedIndex];
 
-answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
+  answerButtons.querySelectorAll('button').forEach(btn => {
+    btn.disabled = true;
+  });
 
   if (!outcome) {
     modalResult.textContent = 'No outcome found for that choice.';
@@ -924,40 +926,44 @@ answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
     player.harmony += outcome.harmony || 0;
     player.influence += outcome.influence || 0;
 
-    if (player.influence < 0) player.influence = 0;
-    if (player.harmony < 0) player.harmony = 0;
-    if (player.curiosity < 0) player.curiosity = 0;
+    // prevent negatives
+    player.curiosity = Math.max(0, player.curiosity);
+    player.harmony = Math.max(0, player.harmony);
+    player.influence = Math.max(0, player.influence);
 
     if (outcome.conflict) {
       modalResult.textContent = outcome.message || 'Conflict increased.';
       modalResult.className = 'modal-result failure';
-      addLog(`${player.label} escalated a conflict encounter.`);
-      statusText.textContent = `${player.label} increased tension during conflict.`;
+      addLog(`${player.label} escalated a conflict.`);
+      statusText.textContent = `${player.label} increased tension.`;
     } else {
-      modalResult.textContent = outcome.message || 'Conflict resolved thoughtfully.';
-      modalResult.className = 'modal-result success';
-      addLog(`${player.label} resolved a conflict encounter.`);
-      statusText.textContent = `${player.label} gained something from navigating conflict.`;
-    }
-    const token = findTokenById(queued.tokenId);
-const bonus = TOKEN_BONUSES[token.name] || {};
+      const token = findTokenById(queued.tokenId);
+      const bonusMap = typeof TOKEN_BONUSES !== 'undefined' ? TOKEN_BONUSES : {};
+      const bonus = token ? (bonusMap[token.name] || {}) : {};
 
-player.curiosity += bonus.curiosity || 0;
-player.harmony += bonus.harmony || 0;
-player.influence += bonus.influence || 0;
+      player.curiosity += bonus.curiosity || 0;
+      player.harmony += bonus.harmony || 0;
+      player.influence += bonus.influence || 0;
+
+      modalResult.textContent = outcome.message || 'Conflict resolved.';
+      modalResult.className = 'modal-result success';
+      addLog(`${player.label} resolved a conflict.`);
+      statusText.textContent = `${player.label} handled conflict successfully.`;
+    }
   }
 
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'secondary';
-  closeBtn.textContent = 'Continue';
-  closeBtn.addEventListener('click', () => {
+  // 🔥 ALWAYS ADD CONTINUE BUTTON
+  answerButtons.innerHTML += `
+    <button class="secondary" id="continueBtn">Continue</button>
+  `;
+
+  document.getElementById('continueBtn').addEventListener('click', () => {
     closeQuestion();
     renderScores();
     renderMaps();
     maybeDeclareWinner(player);
   });
 
-  answerButtons.appendChild(closeBtn);
   renderScores();
   renderMaps();
 }
