@@ -1,0 +1,50 @@
+[
+  {
+    "id": "dialogue_001",
+    "type": "dialogue",
+    "title": "Different Views",
+    "prompt": "You meet someone who sees the world very differently than you. They calmly explain their beliefs. How do you respond?",
+    "choices": [
+      "Listen and ask questions",
+      "Compare to your own beliefs",
+      "Dismiss their perspective"
+    ],
+    "outcomes": [
+      { "curiosity": 1, "harmony": 1, "message": "You gained understanding." },
+      { "curiosity": 1, "influence": 1, "message": "You built a bridge." },
+      { "conflict": 1, "message": "Tension increased." }
+    ]
+  },
+  {
+    "id": "dialogue_002",
+    "type": "dialogue",
+    "title": "Shared Values",
+    "prompt": "You discover someone from a different background shares your values on kindness and community. What do you do?",
+    "choices": [
+      "Acknowledge the connection",
+      "Explore deeper similarities",
+      "Focus on differences"
+    ],
+    "outcomes": [
+      { "harmony": 1, "message": "Connection strengthened." },
+      { "curiosity": 1, "harmony": 1, "message": "Understanding deepened." },
+      { "conflict": 1, "message": "Opportunity missed." }
+    ]
+  },
+  {
+    "id": "dialogue_003",
+    "type": "dialogue",
+    "title": "Misunderstanding",
+    "prompt": "Someone misunderstands your beliefs and reacts negatively. How do you respond?",
+    "choices": [
+      "Clarify calmly",
+      "React defensively",
+      "Walk away"
+    ],
+    "outcomes": [
+      { "harmony": 1, "influence": 1, "message": "You restored understanding." },
+      { "conflict": 1, "message": "Tension escalated." },
+      { "curiosity": 1, "message": "You chose peace over conflict." }
+    ]
+  }
+]
