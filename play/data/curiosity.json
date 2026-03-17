@@ -1,0 +1,67 @@
+[
+  {
+    "id": "curiosity_001",
+    "type": "encounter",
+    "title": "Festival of Light",
+    "prompt": "You arrive in a town glowing with small lamps. A family explains that the lights represent hope and the victory of light over darkness. Which tradition celebrates this?",
+    "choices": ["Hinduism", "Buddhism", "Judaism"],
+    "correctIndex": 0,
+    "perspective": "🕉 Hinduism",
+    "rewards": {
+      "curiosity": 1
+    },
+    "reflection": "Why do many cultures use light as a symbol of hope?"
+  },
+  {
+    "id": "curiosity_002",
+    "type": "encounter",
+    "title": "The Middle Way",
+    "prompt": "You hear a teaching about balance, avoiding extremes, and walking a path of moderation. Which tradition is most associated with this idea?",
+    "choices": ["Buddhism", "Islam", "Judaism"],
+    "correctIndex": 0,
+    "perspective": "☸ Buddhism",
+    "rewards": {
+      "curiosity": 1
+    },
+    "reflection": "Why might balance be considered wisdom?"
+  },
+  {
+    "id": "curiosity_003",
+    "type": "encounter",
+    "title": "Daily Prayer",
+    "prompt": "You observe a group pausing their day to pray at specific times, facing the same direction. Which tradition is this most associated with?",
+    "choices": ["Islam", "Hinduism", "Christianity"],
+    "correctIndex": 0,
+    "perspective": "☪ Islam",
+    "rewards": {
+      "curiosity": 1
+    },
+    "reflection": "How can daily rituals shape a person’s mindset?"
+  },
+  {
+    "id": "curiosity_004",
+    "type": "encounter",
+    "title": "Ancient Texts",
+    "prompt": "You encounter a community studying ancient laws and teachings from the Torah. Which tradition is this?",
+    "choices": ["Judaism", "Christianity", "Taoism"],
+    "correctIndex": 0,
+    "perspective": "✡ Judaism",
+    "rewards": {
+      "curiosity": 1
+    },
+    "reflection": "Why are sacred texts important across cultures?"
+  },
+  {
+    "id": "curiosity_005",
+    "type": "encounter",
+    "title": "Yin and Yang",
+    "prompt": "You learn about balance between opposing forces—light and dark, active and passive. Which philosophy teaches this?",
+    "choices": ["Taoism", "Buddhism", "Islam"],
+    "correctIndex": 0,
+    "perspective": "☯ Taoism",
+    "rewards": {
+      "curiosity": 1
+    },
+    "reflection": "Can opposites exist in harmony?"
+  }
+]
