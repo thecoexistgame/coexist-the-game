@@ -350,7 +350,9 @@
       <div class="badge">Browser Prototype v0.3</div>
       <h1>Coexist: The Game!</h1>
       <p class="sub">Now with Curiosity cards, Temple question popups, Forum entry rules, win condition logic, and stronger progression toward the center.</p>
+       <p id="dailySaying" class="sub" style="margin-top:8px; font-style:italic;"></p>   
     </section>
+
 
     <section class="layout">
       <aside class="stats">
@@ -416,6 +418,8 @@
 let curiosityQuestions = [];
 
 let templeQuestions = [];    
+
+let sayings = [];
     
     const boardLayout = [
       ['SB','H','Q','H','T','H','Q','H','T','H','SR'],
@@ -514,21 +518,32 @@ async function loadGameData() {
   try {
     const curiosityResponse = await fetch('./data/curiosity.json');
     const templeResponse = await fetch('./data/temple.json');
+    const sayingsResponse = await fetch('./data/sayings.json');
 
-    if (!curiosityResponse.ok || !templeResponse.ok) {
+    if (!curiosityResponse.ok || !templeResponse.ok || !sayingsResponse.ok) {
       throw new Error('Failed to load game data');
     }
 
     curiosityQuestions = await curiosityResponse.json();
     templeQuestions = await templeResponse.json();
+    sayings = await sayingsResponse.json();
 
     addLog(`Loaded ${curiosityQuestions.length} Curiosity encounters.`);
     addLog(`Loaded ${templeQuestions.length} Temple encounters.`);
+    addLog(`Loaded ${sayings.length} sayings.`);
   } catch (error) {
     console.error(error);
     addLog('Error loading game data.');
     statusText.textContent = 'Error loading game data.';
   }
+}
+
+function renderSaying() {
+  const sayingEl = document.getElementById('dailySaying');
+  if (!sayingEl) return;
+
+  const saying = randomFrom(sayings);
+  sayingEl.textContent = saying ? `“${saying}”` : '';
 }
     
     function renderLog() {
@@ -756,6 +771,7 @@ function answerQuestion(selectedIndex) {
       statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
       closeQuestion();
       renderAll();
+      renderSaying();
     }
 
     function moveToken(token, toRow, toCol) {
@@ -919,6 +935,7 @@ function answerQuestion(selectedIndex) {
 
  (async function initGame() {
   await loadGameData();
+  renderSaying();
   renderAll();
 })();
   </script>
