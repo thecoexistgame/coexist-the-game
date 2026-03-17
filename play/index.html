@@ -879,7 +879,7 @@ function answerDialogue(selectedIndex) {
       statusText.textContent = `${player.label} increased tension during dialogue.`;
     } else {
       const token = findTokenById(queued.tokenId);
-      const bonus = TOKEN_BONUSES[token.name] || {};
+const bonus = token ? (TOKEN_BONUSES[token.name] || {}) : {};
 
       player.curiosity += bonus.curiosity || 0;
       player.harmony += bonus.harmony || 0;
@@ -996,7 +996,7 @@ function answerQuestion(selectedIndex) {
   const { question, kind } = queued;
   const correct = selectedIndex === question.correctIndex;
 
-  answerButtons.querySelectorAll('button').forEach(btn => btn.disabled = true);
+  answerButtons.querySelectorAll(btn => (btn.disabled = true));
 
   if (correct) {
     const rewards = question.rewards || {};
@@ -1010,13 +1010,13 @@ function answerQuestion(selectedIndex) {
       player.influence += rewards.influence || 0;
     }
 
-const token = findTokenById(queued.tokenId);
-const bonus = TOKEN_BONUSES[token.name] || {};
+    const token = findTokenById(queued.tokenId);
+    const bonus = token ? (TOKEN_BONUSES[token.name] || {}) : {};
 
-player.curiosity += bonus.curiosity || 0;
-player.harmony += bonus.harmony || 0;
-player.influence += bonus.influence || 0;
-    
+    player.curiosity += bonus.curiosity || 0;
+    player.harmony += bonus.harmony || 0;
+    player.influence += bonus.influence || 0;
+
     if (question.perspective && !player.perspectives.includes(question.perspective)) {
       player.perspectives.push(question.perspective);
     }
@@ -1028,33 +1028,33 @@ player.influence += bonus.influence || 0;
       `${player.label} answered a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question correctly` +
       `${question.perspective ? ` and gained ${question.perspective}` : ''}.`
     );
-} else {
-  const correctAnswer =
-    question.choices?.[question.correctIndex] ??
-    question.answers?.[question.correctIndex] ??
-    'Unknown';
 
-  modalResult.textContent = `Incorrect — correct answer: ${correctAnswer}`;
-  modalResult.className = 'modal-result failure';
-
-  addLog(`${player.label} missed a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question.`);
-  statusText.textContent = `${player.label} missed the question and triggered a conflict encounter.`;
-
-  const conflictBtn = document.createElement('button');
-  conflictBtn.className = 'secondary';
-  conflictBtn.textContent = 'Resolve Conflict';
-  conflictBtn.addEventListener('click', () => {
-    closeQuestion();
-    queueConflict(player.id);
-  });
-
-  answerButtons.appendChild(conflictBtn);
-  renderScores();
-  renderMaps();
-  return;
-}
     statusText.textContent = `${player.label} answered correctly and gained rewards.`;
- 
+  } else {
+    const correctAnswer =
+      question.choices?.[question.correctIndex] ??
+      question.answers?.[question.correctIndex] ??
+      'Unknown';
+
+    modalResult.textContent = `Incorrect — correct answer: ${correctAnswer}`;
+    modalResult.className = 'modal-result failure';
+
+    addLog(`${player.label} missed a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question.`);
+    statusText.textContent = `${player.label} missed the question and triggered a conflict encounter.`;
+
+    const conflictBtn = document.createElement('button');
+    conflictBtn.className = 'secondary';
+    conflictBtn.textContent = 'Resolve Conflict';
+    conflictBtn.addEventListener('click', () => {
+      closeQuestion();
+      queueConflict(player.id);
+    });
+
+    answerButtons.appendChild(conflictBtn);
+    renderScores();
+    renderMaps();
+    return;
+  }
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'secondary';
