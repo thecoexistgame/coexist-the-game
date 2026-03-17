@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coexist: The Game! — Browser Prototype v0.2</title>
+  <title>Coexist: The Game! — Browser Prototype v0.3</title>
   <style>
     :root {
       --bg: #f5f1e8;
@@ -14,6 +14,7 @@
       --harmony: #eadca7;
       --conflict: #d8a0a0;
       --dialogue: #bfe7e0;
+      --curiosity: #c9dcf4;
       --forum: #7fa8d8;
       --temple: #c8b6e2;
       --highlight: #2f7dff;
@@ -21,6 +22,8 @@
       --red: #e34b4b;
       --yellow: #d6aa1c;
       --green: #2e9d52;
+      --good: #2e9d52;
+      --bad: #9d3c3c;
     }
 
     * { box-sizing: border-box; }
@@ -33,7 +36,7 @@
     }
 
     .wrap {
-      max-width: 1280px;
+      max-width: 1320px;
       margin: 0 auto;
       display: grid;
       gap: 18px;
@@ -109,6 +112,12 @@
       color: #222;
     }
 
+    button.answer-btn {
+      text-align: left;
+      width: 100%;
+      background: #1f1f1f;
+    }
+
     button:disabled {
       opacity: .5;
       cursor: not-allowed;
@@ -168,6 +177,7 @@
     .harmony { background: var(--harmony); }
     .conflict { background: var(--conflict); }
     .dialogue { background: var(--dialogue); }
+    .curiosity { background: var(--curiosity); }
     .forum { background: var(--forum); color: #fff; }
     .temple { background: var(--temple); }
     .start-blue, .start-red, .start-yellow, .start-green {
@@ -317,8 +327,10 @@
 
     .modal h3 { margin-top: 0; margin-bottom: 8px; }
     .answers { display: grid; gap: 10px; margin-top: 14px; }
-    .answers button { text-align: left; }
     .modal-note { margin-top: 12px; color: var(--muted); font-size: .92rem; }
+    .modal-result { margin-top: 12px; font-weight: 700; }
+    .success { color: var(--good); }
+    .failure { color: var(--bad); }
 
     @media (max-width: 1120px) {
       .layout {
@@ -330,9 +342,9 @@
 <body>
   <div class="wrap">
     <section class="hero">
-      <div class="badge">Browser Prototype v0.2</div>
+      <div class="badge">Browser Prototype v0.3</div>
       <h1>Coexist: The Game!</h1>
-      <p class="sub">Now with multiple tokens per player, temple question popups, Harmony and Influence tracking, and a live Perspective Map.</p>
+      <p class="sub">Now with Curiosity cards, Temple question popups, Forum entry rules, win condition logic, and stronger progression toward the center.</p>
     </section>
 
     <section class="layout">
@@ -348,6 +360,7 @@
             <div class="legend-item"><span class="swatch" style="background: var(--harmony)"></span> Harmony Path</div>
             <div class="legend-item"><span class="swatch" style="background: var(--conflict)"></span> Conflict Path</div>
             <div class="legend-item"><span class="swatch" style="background: var(--dialogue)"></span> Dialogue Space</div>
+            <div class="legend-item"><span class="swatch" style="background: var(--curiosity)"></span> Curiosity Space</div>
             <div class="legend-item"><span class="swatch" style="background: var(--forum)"></span> Forum</div>
             <div class="legend-item"><span class="swatch" style="background: var(--temple)"></span> Temple</div>
           </div>
@@ -355,7 +368,7 @@
 
         <div class="panel">
           <strong>Prototype Goals</strong>
-          <p class="small">Version 0.2 tests whether the game still feels intuitive once multiple pieces, scoring, and learning prompts are layered in.</p>
+          <p class="small">Version 0.3 tests whether the game becomes more satisfying once curiosity, rewards, and a simple win condition are layered on top of movement.</p>
         </div>
 
         <div class="panel">
@@ -376,7 +389,7 @@
 
         <div class="panel">
           <strong>Perspective Map</strong>
-          <p class="small">Temple questions award perspective tokens that fill your growing map of understanding.</p>
+          <p class="small">Curiosity and Temple questions award perspective tokens that fill your growing map of understanding.</p>
           <div id="mapGrid" class="map-grid" style="margin-top:10px;"></div>
         </div>
       </aside>
@@ -385,26 +398,27 @@
 
   <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
     <div class="modal">
-      <h3 id="modalTitle">Temple Question</h3>
+      <h3 id="modalTitle">Question</h3>
       <p id="modalQuestion"></p>
       <div id="answerButtons" class="answers"></div>
       <div id="modalNote" class="modal-note"></div>
+      <div id="modalResult" class="modal-result"></div>
     </div>
   </div>
 
   <script>
     const boardLayout = [
-      ['SB','H','D','H','T','H','D','H','T','H','SR'],
+      ['SB','H','Q','H','T','H','Q','H','T','H','SR'],
       ['H','H','C','H','H','D','H','C','H','H','H'],
-      ['D','C','H','H','T','H','T','H','H','C','D'],
+      ['Q','C','H','H','T','H','T','H','H','C','Q'],
       ['H','H','H','C','H','H','H','C','H','H','H'],
-      ['T','H','D','H','H','D','H','H','D','H','T'],
-      ['H','D','H','H','D','F','D','H','H','D','H'],
-      ['T','H','D','H','H','D','H','H','D','H','T'],
+      ['T','H','D','H','H','Q','H','H','D','H','T'],
+      ['H','D','H','H','Q','F','Q','H','H','D','H'],
+      ['T','H','D','H','H','Q','H','H','D','H','T'],
       ['H','H','H','C','H','H','H','C','H','H','H'],
-      ['D','C','H','H','T','H','T','H','H','C','D'],
+      ['Q','C','H','H','T','H','T','H','H','C','Q'],
       ['H','H','C','H','H','D','H','C','H','H','H'],
-      ['SG','H','T','H','D','H','T','H','D','H','SY']
+      ['SG','H','T','H','Q','H','T','H','Q','H','SY']
     ];
 
     const playerData = [
@@ -420,42 +434,79 @@
       { symbol: 'S', name: 'Science' }
     ];
 
-    const templeQuestions = [
+    const curiosityQuestions = [
       {
-        question: 'Which tradition teaches the Four Noble Truths?',
-        answers: ['Judaism', 'Buddhism', 'Taoism'],
+        question: 'Which tradition teaches the Eightfold Path?',
+        answers: ['Taoism', 'Buddhism', 'Judaism'],
         correct: 1,
-        perspective: '☸ Buddhism'
+        perspective: '☸ Buddhism',
+        rewardText: 'Gain 1 Curiosity and the Buddhism Perspective.'
       },
       {
         question: 'Which religion observes Ramadan fasting?',
         answers: ['Islam', 'Hinduism', 'Christianity'],
         correct: 0,
-        perspective: '☪ Islam'
-      },
-      {
-        question: 'Which philosophy teaches Yin and Yang?',
-        answers: ['Taoism', 'Judaism', 'Islam'],
-        correct: 0,
-        perspective: '☯ Taoism'
-      },
-      {
-        question: 'Which religion celebrates Passover?',
-        answers: ['Islam', 'Judaism', 'Taoism'],
-        correct: 1,
-        perspective: '✡ Judaism'
+        perspective: '☪ Islam',
+        rewardText: 'Gain 1 Curiosity and the Islam Perspective.'
       },
       {
         question: 'Which tradition celebrates Diwali?',
         answers: ['Hinduism', 'Buddhism', 'Judaism'],
         correct: 0,
-        perspective: '🕉 Hinduism'
+        perspective: '🕉 Hinduism',
+        rewardText: 'Gain 1 Curiosity and the Hinduism Perspective.'
+      },
+      {
+        question: 'Which philosophy teaches Yin and Yang?',
+        answers: ['Taoism', 'Judaism', 'Islam'],
+        correct: 0,
+        perspective: '☯ Taoism',
+        rewardText: 'Gain 1 Curiosity and the Taoism Perspective.'
+      },
+      {
+        question: 'Which religion considers the Torah sacred scripture?',
+        answers: ['Christianity', 'Judaism', 'Hinduism'],
+        correct: 1,
+        perspective: '✡ Judaism',
+        rewardText: 'Gain 1 Curiosity and the Judaism Perspective.'
       },
       {
         question: 'Which belief system emphasizes human reason and ethics without religion?',
         answers: ['Secular Humanism', 'Taoism', 'Islam'],
         correct: 0,
-        perspective: '🧠 Humanism'
+        perspective: '🧠 Humanism',
+        rewardText: 'Gain 1 Curiosity and the Humanism Perspective.'
+      }
+    ];
+
+    const templeQuestions = [
+      {
+        question: 'Which teaching includes the phrase “Love your neighbor”?',
+        answers: ['Christianity', 'Taoism', 'Buddhism'],
+        correct: 0,
+        perspective: '✝ Christianity',
+        rewardText: 'Gain 1 Harmony, 1 Influence, and the Christianity Perspective.'
+      },
+      {
+        question: 'Which tradition practices daily prayers facing Mecca?',
+        answers: ['Islam', 'Buddhism', 'Taoism'],
+        correct: 0,
+        perspective: '☪ Islam',
+        rewardText: 'Gain 1 Harmony, 1 Influence, and the Islam Perspective.'
+      },
+      {
+        question: 'Which tradition teaches the Middle Way?',
+        answers: ['Buddhism', 'Judaism', 'Islam'],
+        correct: 0,
+        perspective: '☸ Buddhism',
+        rewardText: 'Gain 1 Harmony, 1 Influence, and the Buddhism Perspective.'
+      },
+      {
+        question: 'Which tradition celebrates Passover?',
+        answers: ['Islam', 'Judaism', 'Taoism'],
+        correct: 1,
+        perspective: '✡ Judaism',
+        rewardText: 'Gain 1 Harmony, 1 Influence, and the Judaism Perspective.'
       }
     ];
 
@@ -465,6 +516,7 @@
           ...p,
           harmony: 0,
           influence: 0,
+          curiosity: 0,
           perspectives: []
         })),
         tokens: playerData.flatMap(p => tokenTemplates.map((template, idx) => ({
@@ -480,7 +532,8 @@
         currentPlayerIndex: 0,
         selectedTokenId: null,
         logEntries: ['Game started. Blue begins.'],
-        questionQueue: null
+        questionQueue: null,
+        winner: null
       };
     }
 
@@ -499,6 +552,7 @@
     const modalQuestion = document.getElementById('modalQuestion');
     const answerButtons = document.getElementById('answerButtons');
     const modalNote = document.getElementById('modalNote');
+    const modalResult = document.getElementById('modalResult');
 
     function currentPlayer() {
       return state.players[state.currentPlayerIndex];
@@ -541,6 +595,7 @@
           <strong>${player.label}</strong>
           <div class="count-badges">
             <span class="count-badge">Harmony: ${player.harmony}</span>
+            <span class="count-badge">Curiosity: ${player.curiosity}</span>
             <span class="count-badge">Influence: ${player.influence}</span>
           </div>
         `;
@@ -562,6 +617,7 @@
     }
 
     function isLegalMove(token, toRow, toCol) {
+      const type = getCellType(toRow, toCol);
       const dr = Math.abs(toRow - token.row);
       const dc = Math.abs(toCol - token.col);
       if (dr === 0 && dc === 0) return false;
@@ -570,7 +626,11 @@
       const occupying = tokensAt(toRow, toCol);
       if (occupying.some(t => t.player !== token.player)) return false;
       if (occupying.length >= 3) return false;
-      return getCellType(toRow, toCol) !== null;
+      if (type === 'F') {
+        const player = state.players.find(p => p.id === token.player);
+        return player.harmony >= 2 && player.curiosity >= 1;
+      }
+      return type !== null;
     }
 
     function legalMovesFor(token) {
@@ -588,62 +648,109 @@
         case 'H': return 'Harmony Path';
         case 'C': return 'Conflict Path';
         case 'D': return 'Dialogue Space';
+        case 'Q': return 'Curiosity Space';
         case 'F': return 'Forum';
         case 'T': return 'Temple';
         default: return 'Start Space';
       }
     }
 
-    function randomTempleQuestion() {
-      return templeQuestions[Math.floor(Math.random() * templeQuestions.length)];
+    function randomFrom(list) {
+      return list[Math.floor(Math.random() * list.length)];
     }
 
-    function openTempleQuestion(token) {
-      const q = randomTempleQuestion();
-      state.questionQueue = { tokenId: token.id, playerId: token.player, question: q };
-      modalTitle.textContent = `Temple Question — ${token.name}`;
+    function queueQuestion(kind, token) {
+      const q = kind === 'temple' ? randomFrom(templeQuestions) : randomFrom(curiosityQuestions);
+      state.questionQueue = { kind, tokenId: token.id, playerId: token.player, question: q };
+      modalTitle.textContent = kind === 'temple' ? `Temple Question — ${token.name}` : `Curiosity Question — ${token.name}`;
       modalQuestion.textContent = q.question;
-      modalNote.textContent = 'Correct answer: gain 1 Harmony, 1 Influence, and the Perspective Token shown.';
+      modalNote.textContent = q.rewardText;
+      modalResult.textContent = '';
+      modalResult.className = 'modal-result';
       answerButtons.innerHTML = '';
       q.answers.forEach((answer, index) => {
         const btn = document.createElement('button');
+        btn.className = 'answer-btn';
         btn.textContent = answer;
-        btn.addEventListener('click', () => answerTempleQuestion(index));
+        btn.addEventListener('click', () => answerQuestion(index));
         answerButtons.appendChild(btn);
       });
       modalBackdrop.classList.add('show');
       modalBackdrop.setAttribute('aria-hidden', 'false');
     }
 
-    function closeTempleQuestion() {
+    function closeQuestion() {
       modalBackdrop.classList.remove('show');
       modalBackdrop.setAttribute('aria-hidden', 'true');
       state.questionQueue = null;
     }
 
-    function answerTempleQuestion(selectedIndex) {
+    function maybeDeclareWinner(player) {
+      if (state.winner || player.influence < 10) return;
+      state.winner = player.id;
+      modalTitle.textContent = `${player.label} Wins!`;
+      modalQuestion.textContent = `${player.label} reached 10 Influence and became the first player to successfully build enough understanding to claim the Forum.`;
+      modalNote.textContent = 'Press Reset Game to start a new session.';
+      modalResult.textContent = 'Victory condition reached.';
+      modalResult.className = 'modal-result success';
+      answerButtons.innerHTML = '';
+      const btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.textContent = 'Celebrate victory';
+      btn.addEventListener('click', closeQuestion);
+      answerButtons.appendChild(btn);
+      modalBackdrop.classList.add('show');
+      modalBackdrop.setAttribute('aria-hidden', 'false');
+      statusText.textContent = `${player.label} has won the game.`;
+      addLog(`${player.label} reached 10 Influence and won the game.`);
+    }
+
+    function answerQuestion(selectedIndex) {
       const queued = state.questionQueue;
       if (!queued) return;
       const player = state.players.find(p => p.id === queued.playerId);
-      const { question } = queued;
-      if (selectedIndex === question.correct) {
-        player.harmony += 1;
-        player.influence += 1;
+      const { question, kind } = queued;
+      const correct = selectedIndex === question.correct;
+
+      answerButtons.querySelectorAll('button').forEach(btn => btn.disabled = true);
+
+      if (correct) {
+        if (kind === 'temple') {
+          player.harmony += 1;
+          player.influence += 1;
+        } else {
+          player.curiosity += 1;
+        }
         if (!player.perspectives.includes(question.perspective)) {
           player.perspectives.push(question.perspective);
         }
-        addLog(`${player.label} answered correctly at a Temple and gained ${question.perspective}.`);
-        statusText.textContent = `${player.label} gained Harmony, Influence, and a Perspective Token.`;
+        modalResult.textContent = `Correct — ${question.rewardText}`;
+        modalResult.className = 'modal-result success';
+        addLog(`${player.label} answered a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question correctly and gained ${question.perspective}.`);
+        statusText.textContent = `${player.label} answered correctly and gained rewards.`;
       } else {
-        addLog(`${player.label} missed a Temple question.`);
-        statusText.textContent = `${player.label} missed the Temple question. No reward this time.`;
+        modalResult.textContent = `Incorrect — correct answer: ${question.answers[question.correct]}`;
+        modalResult.className = 'modal-result failure';
+        addLog(`${player.label} missed a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question.`);
+        statusText.textContent = `${player.label} missed the question. No reward this time.`;
       }
-      closeTempleQuestion();
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'answer-btn secondary';
+      closeBtn.textContent = 'Continue';
+      closeBtn.addEventListener('click', () => {
+        closeQuestion();
+        renderScores();
+        renderMaps();
+        maybeDeclareWinner(player);
+      });
+      answerButtons.appendChild(closeBtn);
       renderScores();
       renderMaps();
     }
 
     function nextTurn() {
+      if (state.winner) return;
       state.selectedTokenId = null;
       state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
       turnLabel.textContent = `Current Turn: ${currentPlayer().label}`;
@@ -655,7 +762,7 @@
       state = createInitialState();
       turnLabel.textContent = 'Current Turn: Blue';
       statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
-      closeTempleQuestion();
+      closeQuestion();
       renderAll();
     }
 
@@ -693,9 +800,14 @@
         statusText.textContent = `${player.label} gained 1 Influence. Later this can trigger full Dialogue Cards.`;
       }
 
+      if (type === 'Q') {
+        statusText.textContent = 'Curiosity reached. Answer the question to gain a Curiosity token.';
+        queueQuestion('curiosity', token);
+      }
+
       if (type === 'T') {
-        statusText.textContent = 'Temple reached. Answer the question to gain rewards.';
-        openTempleQuestion(token);
+        statusText.textContent = 'Temple reached. Answer the question to gain Harmony, Influence, and Perspective.';
+        queueQuestion('temple', token);
       }
 
       if (type === 'F') {
@@ -708,10 +820,11 @@
       renderBoard();
       renderScores();
       renderMaps();
+      maybeDeclareWinner(player);
     }
 
     function clickCell(row, col) {
-      if (state.questionQueue) return;
+      if (state.questionQueue || state.winner) return;
       const clickedTokens = tokensAt(row, col);
       const activePlayerId = currentPlayer().id;
 
@@ -733,6 +846,15 @@
       }
 
       const token = findTokenById(state.selectedTokenId);
+      const targetType = getCellType(row, col);
+      if (targetType === 'F') {
+        const player = state.players.find(p => p.id === token.player);
+        if (player.harmony < 2 || player.curiosity < 1) {
+          statusText.textContent = 'Forum entry requires at least 2 Harmony and 1 Curiosity.';
+          return;
+        }
+      }
+
       if (!isLegalMove(token, row, col)) {
         statusText.textContent = 'Illegal move. Move one adjacent or diagonal space onto an open cell.';
         return;
@@ -758,6 +880,7 @@
           if (type === 'H') cell.classList.add('harmony');
           else if (type === 'C') cell.classList.add('conflict');
           else if (type === 'D') cell.classList.add('dialogue');
+          else if (type === 'Q') { cell.classList.add('curiosity'); cell.textContent = 'Q'; }
           else if (type === 'F') { cell.classList.add('forum'); cell.textContent = 'F'; }
           else if (type === 'T') { cell.classList.add('temple'); cell.textContent = 'T'; }
           else if (type === 'SB') { cell.classList.add('start-blue'); cell.textContent = 'B'; }
@@ -795,7 +918,7 @@
     }
 
     endTurnBtn.addEventListener('click', () => {
-      if (state.questionQueue) return;
+      if (state.questionQueue || state.winner) return;
       addLog(`${currentPlayer().label} ended their turn.`);
       nextTurn();
     });
