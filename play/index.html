@@ -862,7 +862,7 @@ function answerDialogue(selectedIndex) {
   const player = state.players.find(p => p.id === queued.playerId);
   const outcome = queued.card.outcomes?.[selectedIndex];
 
- answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
+answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
   
   if (!outcome) {
     modalResult.textContent = 'No outcome found for that choice.';
@@ -914,7 +914,7 @@ function answerConflict(selectedIndex) {
   const player = state.players.find(p => p.id === queued.playerId);
   const outcome = queued.card.outcomes?.[selectedIndex];
 
-  answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
+answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
 
   if (!outcome) {
     modalResult.textContent = 'No outcome found for that choice.';
@@ -996,7 +996,7 @@ function answerQuestion(selectedIndex) {
   const { question, kind } = queued;
   const correct = selectedIndex === question.correctIndex;
 
-  answerButtons.querySelectorAll(btn => (btn.disabled = true));
+answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
 
   if (correct) {
     const rewards = question.rewards || {};
