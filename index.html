@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coexist: The Game</title>
+  <meta
+    name="description"
+    content="Coexist: The Game is a strategy game about navigating different belief systems and learning how people coexist in a complex world."
+  />
+  <style>
+    :root{
+      --bg:#f5f1e8;
+      --panel:#fffaf0;
+      --line:#d9cfbf;
+      --text:#22201a;
+      --muted:#6b6255;
+      --gold:#d7bb75;
+      --blue:#3f7cff;
+      --red:#e24b4b;
+      --green:#2f9d56;
+      --yellow:#d8aa1f;
+      --forum:#7da9d8;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:0 20px;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:rgba(245,241,232,.92);
+      backdrop-filter:blur(8px);
+      border-bottom:1px solid rgba(0,0,0,.06);
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      padding:14px 0;
+    }
+
+    .brand{
+      font-weight:800;
+      letter-spacing:.02em;
+      text-decoration:none;
+      color:var(--text);
+      font-size:1.05rem;
+    }
+
+    nav{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    nav a{
+      text-decoration:none;
+      color:var(--muted);
+      font-weight:700;
+      font-size:.95rem;
+    }
+
+    nav a:hover{color:var(--text)}
+
+    .hero{
+      padding:72px 0 54px;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:24px;
+      align-items:center;
+    }
+
+    .eyebrow{
+      display:inline-block;
+      padding:7px 11px;
+      border-radius:999px;
+      background:#efe4c4;
+      color:#5a4d31;
+      font-size:.8rem;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      margin-bottom:14px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:clamp(2.2rem, 5vw, 4.2rem);
+      line-height:1.05;
+    }
+
+    .tagline{
+      font-size:clamp(1.05rem, 2vw, 1.3rem);
+      color:var(--muted);
+      max-width:720px;
+      margin:0 0 24px;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:20px;
+    }
+
+    .btn{
+      display:inline-block;
+      text-decoration:none;
+      border-radius:12px;
+      padding:14px 18px;
+      font-weight:800;
+      transition:transform .15s ease, box-shadow .15s ease;
+      box-shadow:var(--shadow);
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+    }
+
+    .btn-primary{
+      background:#1f1f1f;
+      color:#fff;
+    }
+
+    .btn-secondary{
+      background:var(--panel);
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+
+    .hero-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px;
+      box-shadow:var(--shadow);
+    }
+
+    .mini-board{
+      display:grid;
+      grid-template-columns:repeat(5, 1fr);
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .tile{
+      aspect-ratio:1/1;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.08);
+    }
+
+    .start-blue{background:rgba(63,124,255,.18)}
+    .start-red{background:rgba(226,75,75,.18)}
+    .start-green{background:rgba(47,157,86,.18)}
+    .start-yellow{background:rgba(216,170,31,.18)}
+    .harmony{background:#eadca7}
+    .conflict{background:#d7a0a0}
+    .dialogue{background:#c1e6df}
+    .temple{background:#d6c5ea}
+    .forum{background:var(--forum)}
+
+    section{
+      padding:26px 0 12px;
+    }
+
+    .section-head{
+      margin-bottom:18px;
+    }
+
+    .section-head h2{
+      margin:0 0 8px;
+      font-size:clamp(1.5rem, 2.5vw, 2.2rem);
+    }
+
+    .section-head p{
+      margin:0;
+      color:var(--muted);
+      max-width:760px;
+    }
+
+    .grid-3{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:18px;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:18px;
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:20px;
+      box-shadow:var(--shadow);
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+
+    .card:hover{
+      transform:translateY(-3px);
+      box-shadow:0 12px 28px rgba(0,0,0,.10);
+    }
+
+    .card h3{
+      margin:0 0 8px;
+      font-size:1.1rem;
+    }
+
+    .card p{
+      margin:0;
+      color:var(--muted);
+    }
+
+    .pillars .card:nth-child(1){border-top:4px solid var(--blue)}
+    .pillars .card:nth-child(2){border-top:4px solid var(--green)}
+    .pillars .card:nth-child(3){border-top:4px solid var(--yellow)}
+
+    .status-list{
+      margin:0;
+      padding-left:18px;
+      color:var(--muted);
+    }
+
+    .quote{
+      margin-top:20px;
+      background:#f1ead9;
+      border-left:4px solid var(--gold);
+      padding:16px 18px;
+      border-radius:14px;
+      color:#514734;
+      font-weight:700;
+    }
+
+    footer{
+      padding:40px 0 60px;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .footer-box{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    @media (max-width: 900px){
+      .hero-grid,
+      .grid-3,
+      .grid-2{
+        grid-template-columns:1fr;
+      }
+
+      .topbar{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap topbar">
+      <a class="brand" href="/">Coexist: The Game</a>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#pillars">Pillars</a>
+        <a href="#status">Status</a>
+        <a href="/play/">Play</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">In Development</div>
+          <h1>Navigate perspectives. Build harmony. Enter the Forum.</h1>
+          <p class="tagline">
+            A strategy game about navigating different belief systems and learning how people coexist in a complex world.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/play/">Open Prototype</a>
+            <a class="btn btn-secondary" href="#about">Learn More</a>
+          </div>
+          <div class="quote">
+            The goal is not to compare or rank beliefs — but to encourage curiosity, learning, and respectful coexistence through play.
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <h3>Board Preview</h3>
+          <p style="color:var(--muted); margin:0 0 14px;">
+            A symbolic journey from the outer world toward shared dialogue at the center.
+          </p>
+
+          <div class="mini-board">
+            <div class="tile start-blue"></div>
+            <div class="tile harmony"></div>
+            <div class="tile dialogue"></div>
+            <div class="tile harmony"></div>
+            <div class="tile start-red"></div>
+
+            <div class="tile harmony"></div>
+            <div class="tile conflict"></div>
+            <div class="tile harmony"></div>
+            <div class="tile temple"></div>
+            <div class="tile harmony"></div>
+
+            <div class="tile dialogue"></div>
+            <div class="tile harmony"></div>
+            <div class="tile forum"></div>
+            <div class="tile harmony"></div>
+            <div class="tile dialogue"></div>
+
+            <div class="tile harmony"></div>
+            <div class="tile temple"></div>
+            <div class="tile harmony"></div>
+            <div class="tile conflict"></div>
+            <div class="tile harmony"></div>
+
+            <div class="tile start-green"></div>
+            <div class="tile harmony"></div>
+            <div class="tile dialogue"></div>
+            <div class="tile harmony"></div>
+            <div class="tile start-yellow"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>The Idea</h2>
+          <p>
+            Coexist: The Game began as an original concept in 2012 and is now being thoughtfully revived as a strategic learning game. Players travel through a shared world of harmony, conflict, curiosity, dialogue, and temples of learning on their way to the Forum.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>What makes it different</h3>
+            <p>
+              This is not a game about proving one belief system right. It is a game about navigating complexity, collecting perspectives, building harmony, and reaching the Forum through learning and thoughtful play.
+            </p>
+          </div>
+          <div class="card">
+            <h3>How it works</h3>
+            <p>
+              Players move through a dynamic board, answer Curiosity cards, engage in Dialogue, manage Conflict respectfully, collect Perspective Tokens, and build enough influence to enter the Forum.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pillars" class="pillars">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Game Pillars</h2>
+          <p>
+            The project is built around three foundational ideas that shape every future version of the game.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <h3>Strategy</h3>
+            <p>
+              Choose routes, manage resources, collect perspective sets, and time your move into the Forum.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Learning</h3>
+            <p>
+              Gain Perspective Tokens through respectful educational prompts and build a personal map of understanding.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Coexistence</h3>
+            <p>
+              Dialogue and Harmony matter. The game rewards curiosity, listening, and thoughtful interaction.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="status">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Project Status</h2>
+          <p>
+            The game is currently in early prototype development with a GitHub-first workflow and a browser version in progress.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Current Focus</h3>
+            <ul class="status-list">
+              <li>Board layout refinement</li>
+              <li>Prototype browser build</li>
+              <li>Curiosity, Dialogue, Conflict, and Temple decks</li>
+              <li>Perspective Map system</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Long-Term Vision</h3>
+            <ul class="status-list">
+              <li>Browser-based playtesting</li>
+              <li>Printable tabletop prototype</li>
+              <li>Expanded board and card systems</li>
+              <li>Possible future standalone app</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="hero-actions" style="margin-top:18px;">
+          <a class="btn btn-primary" href="/play/">Go to Prototype</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-box">
+        Created by Christopher Burris • Original concept developed in 2012 • Revived in 2026
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
