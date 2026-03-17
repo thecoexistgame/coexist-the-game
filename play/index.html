@@ -359,10 +359,13 @@
         <div class="panel">
           <div id="turnLabel" class="turn">Current Turn: Blue</div>
           <p class="small" id="statusText">Select one of your three tokens, then click one adjacent or diagonal space.</p>
-          <div class="controls">
-            <button id="endTurnBtn" class="secondary">End Turn</button>
-            <button id="resetBtn">Reset Game</button>
-          </div>
+<div class="controls">
+  <button id="endTurnBtn" class="secondary">End Turn</button>
+</div>
+
+<div class="danger-zone">
+  <button id="resetBtn" class="danger">Reset Game</button>
+</div>
           <div class="legend">
             <div class="legend-item"><span class="swatch" style="background: var(--harmony)"></span> Harmony Path</div>
             <div class="legend-item"><span class="swatch" style="background: var(--conflict)"></span> Conflict Path</div>
@@ -400,7 +403,7 @@
         
         <div class="panel">
           <strong>Prototype Goals</strong>
-          <p class="small">Version 0.3 tests whether the game becomes more satisfying once curiosity, rewards, and a simple win condition are layered on top of movement.</p>
+          <p class="small">Version 0.3 transforms the prototype into a living game loop with curiosity, dialogue, conflict, temple rewards, and a meaningful path toward the Forum.</p>
         </div>
 
         <div class="panel">
@@ -1156,6 +1159,18 @@ function answerQuestion(selectedIndex) {
   renderSaying();
   renderAll();
 })();
+
+.danger-zone{
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0,0,0,.08);
+}
+
+button.danger{
+  background: #9d3c3c;
+  color: #fff;
+}
+    
   </script>
 </body>
 </html>
