@@ -420,6 +420,8 @@ let curiosityQuestions = [];
 let templeQuestions = [];    
 
 let sayings = [];
+
+let dialogueCards = [];
     
     const boardLayout = [
       ['SB','H','Q','H','T','H','Q','H','T','H','SR'],
@@ -519,18 +521,26 @@ async function loadGameData() {
     const curiosityResponse = await fetch('./data/curiosity.json');
     const templeResponse = await fetch('./data/temple.json');
     const sayingsResponse = await fetch('./data/sayings.json');
+    const dialogueResponse = await fetch('./data/dialogue.json');
 
-    if (!curiosityResponse.ok || !templeResponse.ok || !sayingsResponse.ok) {
+    if (
+      !curiosityResponse.ok ||
+      !templeResponse.ok ||
+      !sayingsResponse.ok ||
+      !dialogueResponse.ok
+    ) {
       throw new Error('Failed to load game data');
     }
 
     curiosityQuestions = await curiosityResponse.json();
     templeQuestions = await templeResponse.json();
     sayings = await sayingsResponse.json();
+    dialogueCards = await dialogueResponse.json();
 
     addLog(`Loaded ${curiosityQuestions.length} Curiosity encounters.`);
     addLog(`Loaded ${templeQuestions.length} Temple encounters.`);
     addLog(`Loaded ${sayings.length} sayings.`);
+    addLog(`Loaded ${dialogueCards.length} Dialogue cards.`);
   } catch (error) {
     console.error(error);
     addLog('Error loading game data.');
@@ -667,11 +677,92 @@ function queueQuestion(kind, token) {
   modalBackdrop.setAttribute('aria-hidden', 'false');
 }
 
-    function closeQuestion() {
-      modalBackdrop.classList.remove('show');
-      modalBackdrop.setAttribute('aria-hidden', 'true');
-      state.questionQueue = null;
+function queueDialogue(token) {
+  const card = randomFrom(dialogueCards);
+
+  if (!card) {
+    statusText.textContent = 'No dialogue cards available yet.';
+    addLog('No dialogue cards were available.');
+    return;
+  }
+
+  state.questionQueue = {
+    kind: 'dialogue',
+    tokenId: token.id,
+    playerId: token.player,
+    card
+  };
+
+  modalTitle.textContent = `Dialogue Encounter — ${token.name}`;
+  modalQuestion.textContent = card.prompt;
+  modalNote.textContent = 'Choose a response. Different choices lead to different outcomes.';
+  modalResult.textContent = '';
+  modalResult.className = 'modal-result';
+
+  answerButtons.innerHTML = '';
+
+  card.choices.forEach((choice, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = choice;
+    btn.addEventListener('click', () => answerDialogue(index));
+    answerButtons.appendChild(btn);
+  });
+
+  modalBackdrop.classList.add('show');
+  modalBackdrop.setAttribute('aria-hidden', 'false');
+}
+
+   function answerDialogue(selectedIndex) {
+  const queued = state.questionQueue;
+  if (!queued || queued.kind !== 'dialogue') return;
+
+  const player = state.players.find(p => p.id === queued.playerId);
+  const outcome = queued.card.outcomes?.[selectedIndex];
+
+  answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
+
+  if (!outcome) {
+    modalResult.textContent = 'No outcome found for that choice.';
+    modalResult.className = 'modal-result failure';
+  } else {
+    player.curiosity += outcome.curiosity || 0;
+    player.harmony += outcome.harmony || 0;
+    player.influence += outcome.influence || 0;
+
+    if (outcome.conflict) {
+      modalResult.textContent = outcome.message || 'Conflict increased.';
+      modalResult.className = 'modal-result failure';
+      addLog(`${player.label} chose a tense dialogue path.`);
+      statusText.textContent = `${player.label} increased tension during dialogue.`;
+    } else {
+      modalResult.textContent = outcome.message || 'Dialogue resolved positively.';
+      modalResult.className = 'modal-result success';
+      addLog(`${player.label} completed a dialogue encounter successfully.`);
+      statusText.textContent = `${player.label} gained rewards through dialogue.`;
     }
+  }
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'secondary';
+  closeBtn.textContent = 'Continue';
+  closeBtn.addEventListener('click', () => {
+    closeQuestion();
+    renderScores();
+    renderMaps();
+    maybeDeclareWinner(player);
+  });
+
+  answerButtons.appendChild(closeBtn);
+  renderScores();
+  renderMaps();
+} 
+    
+    function closeQuestion() {
+  modalBackdrop.classList.remove('show');
+  modalBackdrop.setAttribute('aria-hidden', 'true');
+  state.questionQueue = null;
+}
 
     function maybeDeclareWinner(player) {
       if (state.winner || player.influence < 10) return;
@@ -803,10 +894,9 @@ function answerQuestion(selectedIndex) {
       }
 
       if (type === 'D') {
-        player.influence += 1;
-        addLog(`${player.label} gained 1 Influence on a Dialogue Space.`);
-        statusText.textContent = `${player.label} gained 1 Influence. Later this can trigger full Dialogue Cards.`;
-      }
+  statusText.textContent = 'Dialogue reached. Choose how to respond.';
+  queueDialogue(token);
+}
 
       if (type === 'Q') {
         statusText.textContent = 'Curiosity reached. Answer the question to gain a Curiosity token.';
