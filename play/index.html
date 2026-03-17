@@ -751,6 +751,33 @@ function queueQuestion(kind, token) {
   modalBackdrop.setAttribute('aria-hidden', 'false');
 }
 
+function showTokenSelection(tokensHere) {
+  modalTitle.textContent = 'Choose a Token';
+  modalQuestion.textContent = 'Which perspective do you want to lead with?';
+  modalNote.textContent = 'Different tokens may eventually gain different strengths.';
+  modalResult.textContent = '';
+  modalResult.className = 'modal-result';
+
+  answerButtons.innerHTML = '';
+
+  tokensHere.forEach(token => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = token.name;
+    btn.addEventListener('click', () => {
+      state.selectedTokenId = token.id;
+      selectedTokenText.textContent = `Selected Token: ${token.name}`;
+      statusText.textContent = `${token.name} selected. Click one adjacent or diagonal space.`;
+      closeQuestion();
+      renderBoard();
+    });
+    answerButtons.appendChild(btn);
+  });
+
+  modalBackdrop.classList.add('show');
+  modalBackdrop.setAttribute('aria-hidden', 'false');
+}
+    
 function queueDialogue(token) {
   const card = randomFrom(dialogueCards);
 
@@ -1100,18 +1127,26 @@ function answerQuestion(selectedIndex) {
       const clickedTokens = tokensAt(row, col);
       const activePlayerId = currentPlayer().id;
 
-      if (clickedTokens.length) {
-        const ownToken = clickedTokens.find(t => t.player === activePlayerId);
-        if (!ownToken) {
-          statusText.textContent = 'You can only select your own token on your turn.';
-          return;
-        }
-state.selectedTokenId = ownToken.id;
-selectedTokenText.textContent = `Selected Token: ${ownToken.name}`;
-statusText.textContent = `${ownToken.name} selected. Click one adjacent or diagonal space.`;
-renderBoard();
-return;
-      }
+if (clickedTokens.length) {
+  const ownTokensHere = clickedTokens.filter(t => t.player === activePlayerId);
+
+  if (!ownTokensHere.length) {
+    statusText.textContent = 'You can only select your own token on your turn.';
+    return;
+  }
+
+  if (ownTokensHere.length === 1) {
+    const ownToken = ownTokensHere[0];
+    state.selectedTokenId = ownToken.id;
+    selectedTokenText.textContent = `Selected Token: ${ownToken.name}`;
+    statusText.textContent = `${ownToken.name} selected. Click one adjacent or diagonal space.`;
+    renderBoard();
+    return;
+  }
+
+  showTokenSelection(ownTokensHere);
+  return;
+}
 
       if (!state.selectedTokenId) {
         statusText.textContent = 'Select your token first.';
