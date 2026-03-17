@@ -1,0 +1,50 @@
+[
+  {
+    "id": "conflict_001",
+    "type": "conflict",
+    "title": "Assumption",
+    "prompt": "You assume someone’s beliefs based on appearance, and they correct you. The moment becomes tense. What do you do?",
+    "choices": [
+      "Apologize and listen",
+      "Defend your assumption",
+      "Ignore and move on"
+    ],
+    "outcomes": [
+      { "harmony": 1, "message": "You repaired the moment." },
+      { "conflict": 1, "message": "Tension increased." },
+      { "influence": -1, "message": "You lost influence." }
+    ]
+  },
+  {
+    "id": "conflict_002",
+    "type": "conflict",
+    "title": "Heated Debate",
+    "prompt": "A discussion about beliefs turns into a heated debate. Emotions rise. What do you do?",
+    "choices": [
+      "De-escalate the situation",
+      "Stand your ground forcefully",
+      "Walk away calmly"
+    ],
+    "outcomes": [
+      { "harmony": 1, "message": "You restored calm." },
+      { "conflict": 1, "message": "Conflict escalated." },
+      { "curiosity": 1, "message": "You chose reflection over reaction." }
+    ]
+  },
+  {
+    "id": "conflict_003",
+    "type": "conflict",
+    "title": "Cultural Misstep",
+    "prompt": "You unintentionally disrespect a cultural practice. Others notice. What do you do?",
+    "choices": [
+      "Acknowledge and learn",
+      "Dismiss their concern",
+      "Deflect responsibility"
+    ],
+    "outcomes": [
+      { "curiosity": 1, "harmony": 1, "message": "You turned it into learning." },
+      { "conflict": 1, "message": "Tension increased." },
+      { "influence": -1, "message": "Trust decreased." }
+    ]
+  }
+]
