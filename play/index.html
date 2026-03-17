@@ -3,19 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coexist: The Game! — Bro<div class="panel">
-  <strong>Win Condition</strong>
-  <p class="small" style="margin-top:10px;">
-    Reach <strong>10 Influence</strong> to win.
-  </p>
-  <p class="small">
-    To enter the <strong>Forum</strong>, a player must have at least:
-  </p>
-  <ul class="small" style="margin:8px 0 0 18px; padding:0;">
-    <li><strong>2 Harmony</strong></li>
-    <li><strong>1 Curiosity</strong></li>
-  </ul>
-</div>wser Prototype v0.3</title>
+  <title>Coexist: The Game! — Rescue Build</title>
   <style>
     :root {
       --bg: #f5f1e8;
@@ -29,7 +17,6 @@
       --curiosity: #c9dcf4;
       --forum: #7fa8d8;
       --temple: #c8b6e2;
-      --highlight: #2f7dff;
       --blue: #3f7cff;
       --red: #e34b4b;
       --yellow: #d6aa1c;
@@ -37,584 +24,253 @@
       --good: #2e9d52;
       --bad: #9d3c3c;
     }
-
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 20px;
-    }
-
-    .wrap {
-      max-width: 1320px;
-      margin: 0 auto;
-      display: grid;
-      gap: 18px;
-    }
-
-    .hero, .panel {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 6px 20px rgba(0,0,0,.05);
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: clamp(1.8rem, 3vw, 2.6rem);
-    }
-
-    .sub {
-      color: var(--muted);
-      margin: 0;
-      line-height: 1.5;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 320px 1fr 300px;
-      gap: 18px;
-      align-items: start;
-    }
-
-    .stats {
-      display: grid;
-      gap: 12px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #efe5c2;
-      font-size: .82rem;
-      font-weight: 700;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .turn {
-      font-size: 1.15rem;
-      font-weight: 700;
-    }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-weight: 700;
-      cursor: pointer;
-      background: #222;
-      color: #fff;
-    }
-
-    button.secondary {
-      background: #e8e0d2;
-      color: #222;
-      font-weight: 700;
-    }
-
-    button.secondary:hover {
-      background: #ddd2be;
-    }
-    
-    button.answer-btn {
-      text-align: left;
-      width: 100%;
-      background: #1f1f1f;
-    }
-
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    .legend {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 14px;
-      font-size: .95rem;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--muted);
-    }
-
-    .swatch {
-      width: 18px;
-      height: 18px;
-      border-radius: 6px;
-      border: 1px solid rgba(0,0,0,.15);
-      flex: 0 0 auto;
-    }
-
-    .board-shell {
-      overflow-x: auto;
-    }
-
-    .board {
-      display: grid;
-      grid-template-columns: repeat(11, 50px);
-      grid-template-rows: repeat(11, 50px);
-      gap: 4px;
-      justify-content: center;
-      min-width: max-content;
-    }
-
-    .cell {
-      width: 50px;
-      height: 50px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,.08);
-      display: grid;
-      place-items: center;
-      position: relative;
-      font-size: .66rem;
-      font-weight: 700;
-      color: rgba(0,0,0,.48);
-      user-select: none;
-      padding: 2px;
-    }
-
-    .harmony { background: var(--harmony); }
-    .conflict { background: var(--conflict); }
-    .dialogue { background: var(--dialogue); }
-    .curiosity { background: var(--curiosity); }
-    .forum { background: var(--forum); color: #fff; }
-    .temple { background: var(--temple); }
-    .start-blue, .start-red, .start-yellow, .start-green {
-      background: #efe8da;
-      border-style: dashed;
-    }
-
-    .selectable {
-      outline: 3px solid rgba(47,125,255,.55);
-      outline-offset: 1px;
-      cursor: pointer;
-    }
-
-    .legal {
-      box-shadow: inset 0 0 0 3px rgba(47,125,255,.85);
-      cursor: pointer;
-    }
-
-    .selected-token {
-      box-shadow: 0 0 0 4px rgba(47,125,255,.9);
-    }
-
-    .token-stack {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 2px;
-      width: 100%;
-      min-height: 24px;
-    }
-
-    .token {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,.92);
-      box-shadow: 0 2px 6px rgba(0,0,0,.25);
-      position: relative;
-    }
-
-    .token::after {
-      content: attr(data-symbol);
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      font-size: 10px;
-      line-height: 1;
-      color: white;
-      text-shadow: 0 1px 1px rgba(0,0,0,.35);
-    }
-
-    .blue { background: var(--blue); }
-    .red { background: var(--red); }
-    .yellow { background: var(--yellow); }
-    .green { background: var(--green); }
-
-    .small {
-      font-size: .9rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .log {
-      max-height: 220px;
-      overflow: auto;
-      padding-right: 6px;
-      display: grid;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .log-entry {
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #f3ede1;
-      font-size: .92rem;
-    }
-
-    .score-grid, .map-grid {
-      display: grid;
-      gap: 8px;
-    }
-
-    .score-row, .map-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
-      border-radius: 12px;
-      background: #f3ede1;
-      font-size: .92rem;
-    }
-
-    .count-badges {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .count-badge {
-      border-radius: 999px;
-      padding: 4px 8px;
-      font-size: .8rem;
-      font-weight: 700;
-      background: #e8e0d2;
-    }
-
-    .map-token-list {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .perspective-chip {
-      border-radius: 999px;
-      padding: 4px 8px;
-      font-size: .8rem;
-      font-weight: 700;
-      background: #e2edf9;
-    }
-
-    .danger-zone{
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(0,0,0,.08);
-}
-
-button.danger{
-  background: #9d3c3c;
-  color: #fff;
-}
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.45);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 50;
-    }
-
-    .modal-backdrop.show { display: flex; }
-
-    .modal {
-      width: min(560px, 100%);
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 18px 40px rgba(0,0,0,.22);
-    }
-
-    .modal h3 { margin-top: 0; margin-bottom: 8px; }
-    .answers { display: grid; gap: 10px; margin-top: 14px; }
-    .modal-note { margin-top: 12px; color: var(--muted); font-size: .92rem; }
-    .modal-result { margin-top: 12px; font-weight: 700; }
-    .success { color: var(--good); }
-    .failure { color: var(--bad); }
-
-    @media (max-width: 1120px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+    .wrap { max-width: 1320px; margin: 0 auto; display: grid; gap: 18px; }
+    .hero, .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: 0 6px 20px rgba(0,0,0,.05); }
+    h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 3vw, 2.6rem); }
+    .sub { color: var(--muted); margin: 0; line-height: 1.5; }
+    .layout { display: grid; grid-template-columns: 320px 1fr 300px; gap: 18px; align-items: start; }
+    .stats { display: grid; gap: 12px; }
+    .badge { display:inline-block; padding:6px 10px; border-radius:999px; background:#efe5c2; font-size:.82rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; margin-bottom:10px; }
+    .turn { font-size: 1.15rem; font-weight: 700; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    button { border:0; border-radius:12px; padding:12px 14px; font-weight:700; cursor:pointer; background:#222; color:#fff; }
+    button.secondary { background:#e8e0d2; color:#222; }
+    button.answer-btn { text-align:left; width:100%; background:#1f1f1f; }
+    .danger-zone{ margin-top:18px; padding-top:14px; border-top:1px solid rgba(0,0,0,.08); }
+    button.danger{ background:#9d3c3c; color:#fff; }
+    .legend { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; margin-top:14px; font-size:.95rem; }
+    .legend-item { display:flex; align-items:center; gap:8px; color:var(--muted); }
+    .swatch { width:18px; height:18px; border-radius:6px; border:1px solid rgba(0,0,0,.15); flex:0 0 auto; }
+    .board-shell { overflow-x:auto; }
+    .board { display:grid; grid-template-columns:repeat(11, 50px); grid-template-rows:repeat(11, 50px); gap:4px; justify-content:center; min-width:max-content; }
+    .cell { width:50px; height:50px; border-radius:12px; border:1px solid rgba(0,0,0,.08); display:grid; place-items:center; position:relative; font-size:.66rem; font-weight:700; color:rgba(0,0,0,.48); user-select:none; padding:2px; }
+    .harmony { background:var(--harmony); } .conflict { background:var(--conflict); } .dialogue { background:var(--dialogue); } .curiosity { background:var(--curiosity); } .forum { background:var(--forum); color:#fff; } .temple { background:var(--temple); }
+    .start-blue,.start-red,.start-yellow,.start-green { background:#efe8da; border-style:dashed; }
+    .selectable { outline:3px solid rgba(47,125,255,.55); outline-offset:1px; cursor:pointer; }
+    .legal { box-shadow: inset 0 0 0 3px rgba(47,125,255,.85); cursor:pointer; }
+    .token-stack { display:flex; flex-wrap:wrap; justify-content:center; gap:2px; width:100%; min-height:24px; }
+    .token { width:18px; height:18px; border-radius:50%; border:2px solid rgba(255,255,255,.92); box-shadow:0 2px 6px rgba(0,0,0,.25); position:relative; }
+    .token::after { content: attr(data-symbol); position:absolute; inset:0; display:grid; place-items:center; font-size:10px; line-height:1; color:white; text-shadow:0 1px 1px rgba(0,0,0,.35); }
+    .blue { background:var(--blue); } .red { background:var(--red); } .yellow { background:var(--yellow); } .green { background:var(--green); }
+    .small { font-size:.9rem; color:var(--muted); line-height:1.5; }
+    .log { max-height:220px; overflow:auto; padding-right:6px; display:grid; gap:8px; margin-top:8px; }
+    .log-entry { padding:10px 12px; border-radius:12px; background:#f3ede1; font-size:.92rem; }
+    .score-grid,.map-grid { display:grid; gap:8px; }
+    .score-row,.map-row { display:grid; grid-template-columns:1fr auto; align-items:center; gap:10px; padding:8px 10px; border-radius:12px; background:#f3ede1; font-size:.92rem; }
+    .count-badges, .map-token-list { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+    .count-badge, .perspective-chip { border-radius:999px; padding:4px 8px; font-size:.8rem; font-weight:700; background:#e8e0d2; }
+    .perspective-chip { background:#e2edf9; }
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; padding:20px; z-index:50; }
+    .modal-backdrop.show { display:flex; }
+    .modal { width:min(560px, 100%); background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:20px; box-shadow:0 18px 40px rgba(0,0,0,.22); }
+    .answers { display:grid; gap:10px; margin-top:14px; }
+    .modal-note { margin-top:12px; color:var(--muted); font-size:.92rem; }
+    .modal-result { margin-top:12px; font-weight:700; }
+    .success { color:var(--good); } .failure { color:var(--bad); }
+    ul.small { margin:8px 0 0 18px; padding:0; }
+    @media (max-width:1120px) { .layout { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <div class="badge">Browser Prototype v0.3</div>
-      <h1>Coexist: The Game!</h1>
-      <p class="sub">Now with Curiosity cards, Temple question popups, Forum entry rules, win condition logic, and stronger progression toward the center.</p>
-       <p id="dailySaying" class="sub" style="margin-top:8px; font-style:italic;"></p>   
-    </section>
+<div class="wrap">
+  <section class="hero">
+    <div class="badge">Browser Prototype v0.3 Rescue</div>
+    <h1>Coexist: The Game!</h1>
+    <p class="sub">Rescue build with Curiosity, Temple, Dialogue, Conflict, token selection, token bonuses, and a one-move-per-turn guard.</p>
+    <p id="dailySaying" class="sub" style="margin-top:8px; font-style:italic;"></p>
+  </section>
 
+  <section class="layout">
+    <aside class="stats">
+      <div class="panel">
+        <div id="turnLabel" class="turn">Current Turn: Blue</div>
+        <p id="selectedTokenText" class="small" style="margin-top:8px;">Selected Token: None</p>
+        <p class="small" id="selectedTokenBonusText">Token Bonus: —</p>
+        <p class="small" id="statusText">Select one of your three tokens, then click one adjacent or diagonal space.</p>
+        <div class="controls">
+          <button id="endTurnBtn" class="secondary">End Turn</button>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><span class="swatch" style="background: var(--harmony)"></span> Harmony Path</div>
+          <div class="legend-item"><span class="swatch" style="background: var(--conflict)"></span> Conflict Path</div>
+          <div class="legend-item"><span class="swatch" style="background: var(--dialogue)"></span> Dialogue Space</div>
+          <div class="legend-item"><span class="swatch" style="background: var(--curiosity)"></span> Curiosity Space</div>
+          <div class="legend-item"><span class="swatch" style="background: var(--forum)"></span> Forum</div>
+          <div class="legend-item"><span class="swatch" style="background: var(--temple)"></span> Temple</div>
+        </div>
+        <div class="danger-zone">
+          <button id="resetBtn" class="danger">Reset Game</button>
+        </div>
+      </div>
 
-    <section class="layout">
-      <aside class="stats">
-        <div class="panel">
-          <div id="turnLabel" class="turn">Current Turn: Blue</div>
-          <p id="selectedTokenText" class="small" style="margin-top:8px;">Selected Token: None</p>
-          <p class="small" id="statusText">Select one of your three tokens, then click one adjacent or diagonal space.</p>
-<div class="controls">
-  <button id="endTurnBtn" class="secondary">End Turn</button>
+      <div class="panel">
+        <strong>How to Play</strong>
+        <ul class="small">
+          <li><strong>Move your tokens</strong> across the board toward the Forum.</li>
+          <li><strong>Curiosity Spaces</strong> ask questions — gain knowledge and Perspective.</li>
+          <li><strong>Temple Spaces</strong> deepen understanding and unlock progress.</li>
+          <li><strong>Dialogue Spaces</strong> challenge how you respond to others.</li>
+          <li><strong>Wrong answers</strong> trigger Conflict — choose how to handle tension.</li>
+          <li><strong>Earn Harmony, Curiosity, and Influence</strong> to strengthen your path.</li>
+          <li><strong>Reach the Forum</strong> with enough understanding to win.</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <strong>Win Condition</strong>
+        <p class="small" style="margin-top:10px;">Reach <strong>10 Influence</strong> to win.</p>
+        <p class="small">To enter the <strong>Forum</strong>, a player must have at least:</p>
+        <ul class="small">
+          <li><strong>2 Harmony</strong></li>
+          <li><strong>1 Curiosity</strong></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <strong>Move Log</strong>
+        <div id="log" class="log"></div>
+      </div>
+    </aside>
+
+    <main class="panel board-shell">
+      <div id="board" class="board" aria-label="Coexist board"></div>
+    </main>
+
+    <aside class="stats">
+      <div class="panel">
+        <strong>Player Scores</strong>
+        <div id="scoreGrid" class="score-grid" style="margin-top:10px;"></div>
+      </div>
+      <div class="panel">
+        <strong>Perspective Map</strong>
+        <p class="small">Curiosity and Temple questions award perspective tokens that fill your growing map of understanding.</p>
+        <div id="mapGrid" class="map-grid" style="margin-top:10px;"></div>
+      </div>
+    </aside>
+  </section>
 </div>
-<p></p>
-          <div class="legend">
-            <div class="legend-item"><span class="swatch" style="background: var(--harmony)"></span> Harmony Path</div>
-            <div class="legend-item"><span class="swatch" style="background: var(--conflict)"></span> Conflict Path</div>
-            <div class="legend-item"><span class="swatch" style="background: var(--dialogue)"></span> Dialogue Space</div>
-            <div class="legend-item"><span class="swatch" style="background: var(--curiosity)"></span> Curiosity Space</div>
-            <div class="legend-item"><span class="swatch" style="background: var(--forum)"></span> Forum</div>
-            <div class="legend-item"><span class="swatch" style="background: var(--temple)"></span> Temple</div>
-          </div>
-<p></p>
-          <div class="danger-zone">
-  <button id="resetBtn" class="danger">Reset Game</button>
-</div>
-        </div>
 
-<div class="card">
-  <h3>How to Play</h3>
-  <ul>
-    <li><strong>Move your tokens</strong> across the board toward the Forum.</li>
-    <li><strong>Curiosity Spaces</strong> ask questions — gain knowledge and Perspective.</li>
-    <li><strong>Temple Spaces</strong> deepen your understanding and unlock progress.</li>
-    <li><strong>Dialogue Spaces</strong> challenge how you respond to others.</li>
-    <li><strong>Wrong answers</strong> trigger Conflict — choose how to handle tension.</li>
-    <li><strong>Earn Harmony, Curiosity, and Influence</strong> to strengthen your path.</li>
-    <li><strong>Reach the Forum</strong> with enough understanding to win.</li>
-  </ul>
-</div>
-
-<div class="panel">
-  <strong>Win Condition</strong>
-  <p class="small" style="margin-top:10px;">
-    Reach <strong>10 Influence</strong> to win.
-  </p>
-  <p class="small">
-    To enter the <strong>Forum</strong>, a player must have at least:
-  </p>
-  <ul class="small" style="margin:8px 0 0 18px; padding:0;">
-    <li><strong>2 Harmony</strong></li>
-    <li><strong>1 Curiosity</strong></li>
-  </ul>
-</div>
-        
-     <div class="card">
-  <h3>Game Philosophy</h3>
-  <p>
-    This is not a game about proving one belief system right.
-    It is about learning, curiosity, and navigating differences.
-  </p>
-  <p>
-    Every decision shapes your path — not just what you know,
-    but how you respond to others.
-  </p>
-</div>   
-        
-        <div class="panel">
-          <strong>Prototype Goals</strong>
-          <p class="small">Version 0.3 transforms the prototype into a living game loop with curiosity, dialogue, conflict, temple rewards, and a meaningful path toward the Forum.</p>
-        </div>
-
-        <div class="panel">
-          <strong>Move Log</strong>
-          <div id="log" class="log"></div>
-        </div>
-      </aside>
-
-      <main class="panel board-shell">
-        <div id="board" class="board" aria-label="Coexist board"></div>
-      </main>
-
-      <aside class="stats">
-        <div class="panel">
-          <strong>Player Scores</strong>
-          <div id="scoreGrid" class="score-grid" style="margin-top:10px;"></div>
-        </div>
-
-        <div class="panel">
-          <strong>Perspective Map</strong>
-          <p class="small">Curiosity and Temple questions award perspective tokens that fill your growing map of understanding.</p>
-          <div id="mapGrid" class="map-grid" style="margin-top:10px;"></div>
-        </div>
-      </aside>
-    </section>
+<div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+  <div class="modal">
+    <h3 id="modalTitle">Question</h3>
+    <p id="modalQuestion"></p>
+    <div id="answerButtons" class="answers"></div>
+    <div id="modalNote" class="modal-note"></div>
+    <div id="modalResult" class="modal-result"></div>
   </div>
+</div>
 
-  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
-    <div class="modal">
-      <h3 id="modalTitle">Question</h3>
-      <p id="modalQuestion"></p>
-      <div id="answerButtons" class="answers"></div>
-      <div id="modalNote" class="modal-note"></div>
-      <div id="modalResult" class="modal-result"></div>
-    </div>
-  </div>
-
-  <script>
-
-let curiosityQuestions = [];
-
-let templeQuestions = [];    
-
-let sayings = [];
-
-let dialogueCards = [];
-
-let conflictCards = [];
-
+<script>
 const TOKEN_BONUSES = {
   Faith: { harmony: 1 },
   Reason: { influence: 1 },
   Science: { curiosity: 1 }
 };
-    
-    const boardLayout = [
-      ['SB','H','Q','H','T','H','Q','H','T','H','SR'],
-      ['H','H','C','H','H','D','H','C','H','H','H'],
-      ['Q','C','H','H','T','H','T','H','H','C','Q'],
-      ['H','H','H','C','H','H','H','C','H','H','H'],
-      ['T','H','D','H','H','Q','H','H','D','H','T'],
-      ['H','D','H','H','Q','F','Q','H','H','D','H'],
-      ['T','H','D','H','H','Q','H','H','D','H','T'],
-      ['H','H','H','C','H','H','H','C','H','H','H'],
-      ['Q','C','H','H','T','H','T','H','H','C','Q'],
-      ['H','H','C','H','H','D','H','C','H','H','H'],
-      ['SG','H','T','H','Q','H','T','H','Q','H','SY']
-    ];
 
-    const playerData = [
-      { id: 'blue', label: 'Blue', start: [0, 0] },
-      { id: 'red', label: 'Red', start: [0, 10] },
-      { id: 'green', label: 'Green', start: [10, 0] },
-      { id: 'yellow', label: 'Yellow', start: [10, 10] }
-    ];
+let curiosityQuestions = [];
+let templeQuestions = [];
+let sayings = [];
+let dialogueCards = [];
+let conflictCards = [];
 
-    const tokenTemplates = [
-      { symbol: 'F', name: 'Faith' },
-      { symbol: 'R', name: 'Reason' },
-      { symbol: 'S', name: 'Science' }
-    ];
+const boardLayout = [
+  ['SB','H','Q','H','T','H','Q','H','T','H','SR'],
+  ['H','H','C','H','H','D','H','C','H','H','H'],
+  ['Q','C','H','H','T','H','T','H','H','C','Q'],
+  ['H','H','H','C','H','H','H','C','H','H','H'],
+  ['T','H','D','H','H','Q','H','H','D','H','T'],
+  ['H','D','H','H','Q','F','Q','H','H','D','H'],
+  ['T','H','D','H','H','Q','H','H','D','H','T'],
+  ['H','H','H','C','H','H','H','C','H','H','H'],
+  ['Q','C','H','H','T','H','T','H','H','C','Q'],
+  ['H','H','C','H','H','D','H','C','H','H','H'],
+  ['SG','H','T','H','Q','H','T','H','Q','H','SY']
+];
 
-    function createInitialState() {
-      return {
-        players: playerData.map(p => ({
-          ...p,
-          harmony: 0,
-          influence: 0,
-          curiosity: 0,
-          perspectives: []
-        })),
-        tokens: playerData.flatMap(p => tokenTemplates.map((template, idx) => ({
-          id: `${p.id}-${template.name.toLowerCase()}`,
-          player: p.id,
-          row: p.start[0],
-          col: p.start[1],
-          conflictStreak: 0,
-          symbol: template.symbol,
-          name: template.name,
-          tokenIndex: idx
-        }))),
-        currentPlayerIndex: 0,
-        selectedTokenId: null,
-        logEntries: ['Game started. Blue begins.'],
-        questionQueue: null,
-        winner: null
-      };
-    }
+const playerData = [
+  { id:'blue', label:'Blue', start:[0,0] },
+  { id:'red', label:'Red', start:[0,10] },
+  { id:'green', label:'Green', start:[10,0] },
+  { id:'yellow', label:'Yellow', start:[10,10] }
+];
 
-    let state = createInitialState();
+const tokenTemplates = [
+  { symbol:'F', name:'Faith' },
+  { symbol:'R', name:'Reason' },
+  { symbol:'S', name:'Science' }
+];
 
-    const boardEl = document.getElementById('board');
-    const turnLabel = document.getElementById('turnLabel');
-    const statusText = document.getElementById('statusText');
-    const logEl = document.getElementById('log');
-    const scoreGrid = document.getElementById('scoreGrid');
-    const mapGrid = document.getElementById('mapGrid');
-    const endTurnBtn = document.getElementById('endTurnBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const modalBackdrop = document.getElementById('modalBackdrop');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalQuestion = document.getElementById('modalQuestion');
-    const answerButtons = document.getElementById('answerButtons');
-    const modalNote = document.getElementById('modalNote');
-    const modalResult = document.getElementById('modalResult');
-    const selectedTokenText = document.getElementById('selectedTokenText');
+function createInitialState() {
+  return {
+    players: playerData.map(p => ({...p, harmony:0, influence:0, curiosity:0, perspectives:[]})),
+    tokens: playerData.flatMap(p => tokenTemplates.map((template, idx) => ({
+      id: `${p.id}-${template.name.toLowerCase()}`,
+      player: p.id,
+      row: p.start[0],
+      col: p.start[1],
+      conflictStreak: 0,
+      symbol: template.symbol,
+      name: template.name,
+      tokenIndex: idx
+    }))),
+    currentPlayerIndex: 0,
+    selectedTokenId: null,
+    logEntries: ['Game started. Blue begins.'],
+    questionQueue: null,
+    winner: null,
+    hasMovedThisTurn: false
+  };
+}
 
-    function currentPlayer() {
-      return state.players[state.currentPlayerIndex];
-    }
+let state = createInitialState();
 
-    function getCellType(row, col) {
-      return boardLayout[row]?.[col] ?? null;
-    }
+const boardEl = document.getElementById('board');
+const turnLabel = document.getElementById('turnLabel');
+const selectedTokenText = document.getElementById('selectedTokenText');
+const selectedTokenBonusText = document.getElementById('selectedTokenBonusText');
+const statusText = document.getElementById('statusText');
+const logEl = document.getElementById('log');
+const scoreGrid = document.getElementById('scoreGrid');
+const mapGrid = document.getElementById('mapGrid');
+const endTurnBtn = document.getElementById('endTurnBtn');
+const resetBtn = document.getElementById('resetBtn');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalTitle = document.getElementById('modalTitle');
+const modalQuestion = document.getElementById('modalQuestion');
+const answerButtons = document.getElementById('answerButtons');
+const modalNote = document.getElementById('modalNote');
+const modalResult = document.getElementById('modalResult');
 
-    function tokensAt(row, col) {
-      return state.tokens.filter(t => t.row === row && t.col === col);
-    }
+function currentPlayer() { return state.players[state.currentPlayerIndex]; }
+function getCellType(row, col) { return boardLayout[row]?.[col] ?? null; }
+function tokensAt(row, col) { return state.tokens.filter(t => t.row === row && t.col === col); }
+function findTokenById(id) { return state.tokens.find(t => t.id === id); }
+function randomFrom(list) { return (!Array.isArray(list) || list.length === 0) ? null : list[Math.floor(Math.random() * list.length)]; }
 
-    function findTokenById(id) {
-      return state.tokens.find(t => t.id === id);
-    }
-
-    function addLog(message) {
-      state.logEntries.unshift(message);
-      if (state.logEntries.length > 14) state.logEntries.pop();
-      renderLog();
-    }
+function addLog(message) {
+  state.logEntries.unshift(message);
+  if (state.logEntries.length > 14) state.logEntries.pop();
+  renderLog();
+}
 
 async function loadGameData() {
   try {
-    const curiosityResponse = await fetch('./data/curiosity.json');
-    const templeResponse = await fetch('./data/temple.json');
-    const sayingsResponse = await fetch('./data/sayings.json');
-    const dialogueResponse = await fetch('./data/dialogue.json');
-    const conflictResponse = await fetch('./data/conflict.json');
+    const [cRes, tRes, sRes, dRes, fRes] = await Promise.all([
+      fetch('./data/curiosity.json'),
+      fetch('./data/temple.json'),
+      fetch('./data/sayings.json'),
+      fetch('./data/dialogue.json'),
+      fetch('./data/conflict.json')
+    ]);
+    if (![cRes,tRes,sRes,dRes,fRes].every(r => r.ok)) throw new Error('Failed to load game data');
 
-    if (
-      !curiosityResponse.ok ||
-      !templeResponse.ok ||
-      !sayingsResponse.ok ||
-      !dialogueResponse.ok ||
-      !conflictResponse.ok
-    ) {
-      throw new Error('Failed to load game data');
-    }
-
-    curiosityQuestions = await curiosityResponse.json();
-    templeQuestions = await templeResponse.json();
-    sayings = await sayingsResponse.json();
-    dialogueCards = await dialogueResponse.json();
-    conflictCards = await conflictResponse.json();
+    curiosityQuestions = await cRes.json();
+    templeQuestions = await tRes.json();
+    sayings = await sRes.json();
+    dialogueCards = await dRes.json();
+    conflictCards = await fRes.json();
 
     addLog(`Loaded ${curiosityQuestions.length} Curiosity encounters.`);
     addLog(`Loaded ${templeQuestions.length} Temple encounters.`);
@@ -623,162 +279,165 @@ async function loadGameData() {
     addLog(`Loaded ${conflictCards.length} Conflict cards.`);
   } catch (error) {
     console.error(error);
-    addLog('Error loading game data.');
     statusText.textContent = 'Error loading game data.';
+    addLog('Error loading game data.');
   }
 }
-    
+
 function renderSaying() {
   const sayingEl = document.getElementById('dailySaying');
-  if (!sayingEl) return;
-
   const saying = randomFrom(sayings);
   sayingEl.textContent = saying ? `“${saying}”` : '';
 }
-    
-    function renderLog() {
-      logEl.innerHTML = '';
-      state.logEntries.forEach(entry => {
-        const div = document.createElement('div');
-        div.className = 'log-entry';
-        div.textContent = entry;
-        logEl.appendChild(div);
-      });
-    }
 
-    function renderScores() {
-      scoreGrid.innerHTML = '';
-      state.players.forEach(player => {
-        const row = document.createElement('div');
-        row.className = 'score-row';
-        row.innerHTML = `
-          <strong>${player.label}</strong>
-          <div class="count-badges">
-            <span class="count-badge">Harmony: ${player.harmony}</span>
-            <span class="count-badge">Curiosity: ${player.curiosity}</span>
-            <span class="count-badge">Influence: ${player.influence}</span>
-          </div>
-        `;
-        scoreGrid.appendChild(row);
-      });
-    }
+function renderLog() {
+  logEl.innerHTML = '';
+  state.logEntries.forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'log-entry';
+    div.textContent = entry;
+    logEl.appendChild(div);
+  });
+}
 
-    function renderMaps() {
-      mapGrid.innerHTML = '';
-      state.players.forEach(player => {
-        const row = document.createElement('div');
-        row.className = 'map-row';
-        row.innerHTML = `
-          <strong>${player.label}</strong>
-          <div class="map-token-list">${player.perspectives.length ? player.perspectives.map(p => `<span class="perspective-chip">${p}</span>`).join('') : '<span class="count-badge">None yet</span>'}</div>
-        `;
-        mapGrid.appendChild(row);
-      });
-    }
+function renderScores() {
+  scoreGrid.innerHTML = '';
+  state.players.forEach(player => {
+    const row = document.createElement('div');
+    row.className = 'score-row';
+    row.innerHTML = `<strong>${player.label}</strong><div class="count-badges">
+      <span class="count-badge">Harmony: ${player.harmony}</span>
+      <span class="count-badge">Curiosity: ${player.curiosity}</span>
+      <span class="count-badge">Influence: ${player.influence}</span></div>`;
+    scoreGrid.appendChild(row);
+  });
+}
+
+function renderMaps() {
+  mapGrid.innerHTML = '';
+  state.players.forEach(player => {
+    const row = document.createElement('div');
+    row.className = 'map-row';
+    row.innerHTML = `<strong>${player.label}</strong><div class="map-token-list">${
+      player.perspectives.length ? player.perspectives.map(p => `<span class="perspective-chip">${p}</span>`).join('') : '<span class="count-badge">None yet</span>'
+    }</div>`;
+    mapGrid.appendChild(row);
+  });
+}
+
+function describeSpace(type) {
+  switch (type) {
+    case 'H': return 'Harmony Path';
+    case 'C': return 'Conflict Path';
+    case 'D': return 'Dialogue Space';
+    case 'Q': return 'Curiosity Space';
+    case 'F': return 'Forum';
+    case 'T': return 'Temple';
+    default: return 'Start Space';
+  }
+}
+
+function updateSelectedTokenDisplay(token) {
+  if (!token) {
+    selectedTokenText.textContent = 'Selected Token: None';
+    selectedTokenBonusText.textContent = 'Token Bonus: —';
+    return;
+  }
+  selectedTokenText.textContent = `Selected Token: ${token.name}`;
+  const bonus = TOKEN_BONUSES[token.name] || {};
+  const [key, value] = Object.entries(bonus)[0] || [];
+  selectedTokenBonusText.textContent = key ? `Token Bonus: +${value} ${key}` : 'Token Bonus: —';
+}
 
 function getMovePreview(token, row, col) {
   const type = getCellType(row, col);
   const player = state.players.find(p => p.id === token.player);
-
   switch (type) {
-    case 'H':
-      return 'Harmony Path — gain 1 Harmony.';
-    case 'Q':
-      return 'Curiosity Space — answer a question to gain Curiosity and Perspective.';
-    case 'T':
-      return 'Temple — answer a deeper question for Harmony, Influence, and Perspective.';
-    case 'D':
-      return 'Dialogue Space — choose how to respond and shape the outcome.';
+    case 'H': return 'Harmony Path — gain 1 Harmony.';
+    case 'Q': return 'Curiosity Space — answer a question to gain Curiosity and Perspective.';
+    case 'T': return 'Temple — answer a deeper question for Harmony, Influence, and Perspective.';
+    case 'D': return 'Dialogue Space — choose how to respond and shape the outcome.';
     case 'C':
-      if (player.harmony > 0) {
-        return 'Conflict Path — lose 1 Harmony.';
-      }
-      if (player.influence > 0) {
-        return 'Conflict Path — lose 1 Influence.';
-      }
+      if (player.harmony > 0) return 'Conflict Path — lose 1 Harmony.';
+      if (player.influence > 0) return 'Conflict Path — lose 1 Influence.';
       return 'Conflict Path — risky route with no Harmony or Influence left to lose.';
     case 'F':
-      if (player.harmony < 2 || player.curiosity < 1) {
-        return 'Forum locked — requires at least 2 Harmony and 1 Curiosity.';
-      }
+      if (player.harmony < 2 || player.curiosity < 1) return 'Forum locked — requires at least 2 Harmony and 1 Curiosity.';
       return 'Forum — enter and gain Influence.';
-    case 'SB':
-    case 'SR':
-    case 'SG':
-    case 'SY':
-      return 'Start Space.';
-    default:
-      return '';
+    default: return '';
   }
 }
-    
-    function isLegalMove(token, toRow, toCol) {
-      const type = getCellType(toRow, toCol);
-      const dr = Math.abs(toRow - token.row);
-      const dc = Math.abs(toCol - token.col);
-      if (dr === 0 && dc === 0) return false;
-      if (dr > 1 || dc > 1) return false;
-      if (toRow < 0 || toRow > 10 || toCol < 0 || toCol > 10) return false;
-      const occupying = tokensAt(toRow, toCol);
-      if (occupying.some(t => t.player !== token.player)) return false;
-      if (occupying.length >= 3) return false;
-      if (type === 'F') {
-        const player = state.players.find(p => p.id === token.player);
-        return player.harmony >= 2 && player.curiosity >= 1;
-      }
-      return type !== null;
-    }
 
-    function legalMovesFor(token) {
-      const moves = [];
-      for (let r = token.row - 1; r <= token.row + 1; r++) {
-        for (let c = token.col - 1; c <= token.col + 1; c++) {
-          if (isLegalMove(token, r, c)) moves.push(`${r}-${c}`);
-        }
-      }
-      return moves;
-    }
+function isLegalMove(token, toRow, toCol) {
+  const type = getCellType(toRow, toCol);
+  const dr = Math.abs(toRow - token.row);
+  const dc = Math.abs(toCol - token.col);
+  if (dr === 0 && dc === 0) return false;
+  if (dr > 1 || dc > 1) return false;
+  if (toRow < 0 || toRow > 10 || toCol < 0 || toCol > 10) return false;
+  const occupying = tokensAt(toRow, toCol);
+  if (occupying.some(t => t.player !== token.player)) return false;
+  if (occupying.length >= 3) return false;
+  if (type === 'F') {
+    const player = state.players.find(p => p.id === token.player);
+    return player.harmony >= 2 && player.curiosity >= 1;
+  }
+  return type !== null;
+}
 
-    function describeSpace(type) {
-      switch (type) {
-        case 'H': return 'Harmony Path';
-        case 'C': return 'Conflict Path';
-        case 'D': return 'Dialogue Space';
-        case 'Q': return 'Curiosity Space';
-        case 'F': return 'Forum';
-        case 'T': return 'Temple';
-        default: return 'Start Space';
-      }
+function legalMovesFor(token) {
+  const moves = [];
+  for (let r = token.row - 1; r <= token.row + 1; r++) {
+    for (let c = token.col - 1; c <= token.col + 1; c++) {
+      if (isLegalMove(token, r, c)) moves.push(`${r}-${c}`);
     }
+  }
+  return moves;
+}
 
-function randomFrom(list) {
-  if (!Array.isArray(list) || list.length === 0) return null;
-  return list[Math.floor(Math.random() * list.length)];
+function closeQuestion() {
+  modalBackdrop.classList.remove('show');
+  modalBackdrop.setAttribute('aria-hidden', 'true');
+  state.questionQueue = null;
+}
+
+function showTokenSelection(tokensHere) {
+  modalTitle.textContent = 'Choose a Token';
+  modalQuestion.textContent = 'Which perspective do you want to lead with?';
+  modalNote.textContent = 'Different tokens gain different strengths.';
+  modalResult.textContent = '';
+  modalResult.className = 'modal-result';
+  answerButtons.innerHTML = '';
+
+  tokensHere.forEach(token => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = token.name;
+    btn.addEventListener('click', () => {
+      state.selectedTokenId = token.id;
+      updateSelectedTokenDisplay(token);
+      statusText.textContent = `${token.name} selected. Click one adjacent or diagonal space.`;
+      closeQuestion();
+      renderBoard();
+    });
+    answerButtons.appendChild(btn);
+  });
+
+  modalBackdrop.classList.add('show');
+  modalBackdrop.setAttribute('aria-hidden', 'false');
 }
 
 function queueQuestion(kind, token) {
   const source = kind === 'temple' ? templeQuestions : curiosityQuestions;
   const q = randomFrom(source);
-
-  if (!q) {
-    statusText.textContent = `No ${kind} questions available yet.`;
-    addLog(`No ${kind} questions were available.`);
-    return;
-  }
+  if (!q) return;
 
   state.questionQueue = { kind, tokenId: token.id, playerId: token.player, question: q };
-
-  modalTitle.textContent =
-    kind === 'temple'
-      ? `Temple Question — ${token.name}`
-      : `Curiosity Encounter — ${token.name}`;
-
+  modalTitle.textContent = kind === 'temple' ? `Temple Question — ${token.name}` : `Curiosity Encounter — ${token.name}`;
   modalQuestion.textContent = q.prompt || q.question;
   modalNote.textContent = q.rewardText || '';
-
   modalResult.textContent = '';
   modalResult.className = 'modal-result';
-
   answerButtons.innerHTML = '';
 
   q.choices.forEach((answer, index) => {
@@ -793,55 +452,16 @@ function queueQuestion(kind, token) {
   modalBackdrop.setAttribute('aria-hidden', 'false');
 }
 
-function showTokenSelection(tokensHere) {
-  modalTitle.textContent = 'Choose a Token';
-  modalQuestion.textContent = 'Which perspective do you want to lead with?';
-  modalNote.textContent = 'Different tokens may eventually gain different strengths.';
-  modalResult.textContent = '';
-  modalResult.className = 'modal-result';
-
-  answerButtons.innerHTML = '';
-
-  tokensHere.forEach(token => {
-    const btn = document.createElement('button');
-    btn.className = 'answer-btn';
-    btn.textContent = token.name;
-    btn.addEventListener('click', () => {
-      state.selectedTokenId = token.id;
-      selectedTokenText.textContent = `Selected Token: ${token.name}`;
-      statusText.textContent = `${token.name} selected. Click one adjacent or diagonal space.`;
-      closeQuestion();
-      renderBoard();
-    });
-    answerButtons.appendChild(btn);
-  });
-
-  modalBackdrop.classList.add('show');
-  modalBackdrop.setAttribute('aria-hidden', 'false');
-}
-    
 function queueDialogue(token) {
   const card = randomFrom(dialogueCards);
+  if (!card) return;
 
-  if (!card) {
-    statusText.textContent = 'No dialogue cards available yet.';
-    addLog('No dialogue cards were available.');
-    return;
-  }
-
-  state.questionQueue = {
-    kind: 'dialogue',
-    tokenId: token.id,
-    playerId: token.player,
-    card
-  };
-
+  state.questionQueue = { kind:'dialogue', tokenId: token.id, playerId: token.player, card };
   modalTitle.textContent = `Dialogue Encounter — ${token.name}`;
   modalQuestion.textContent = card.prompt;
   modalNote.textContent = 'Choose a response. Different choices lead to different outcomes.';
   modalResult.textContent = '';
   modalResult.className = 'modal-result';
-
   answerButtons.innerHTML = '';
 
   card.choices.forEach((choice, index) => {
@@ -856,27 +476,16 @@ function queueDialogue(token) {
   modalBackdrop.setAttribute('aria-hidden', 'false');
 }
 
-function queueConflict(playerId) {
+function queueConflict(playerId, tokenId = null) {
   const card = randomFrom(conflictCards);
+  if (!card) return;
 
-  if (!card) {
-    statusText.textContent = 'No conflict cards available yet.';
-    addLog('No conflict cards were available.');
-    return;
-  }
-
-  state.questionQueue = {
-    kind: 'conflict',
-    playerId,
-    card
-  };
-
-  modalTitle.textContent = `Conflict Encounter`;
+  state.questionQueue = { kind:'conflict', playerId, tokenId, card };
+  modalTitle.textContent = 'Conflict Encounter';
   modalQuestion.textContent = card.prompt;
   modalNote.textContent = 'Choose your response carefully. Conflict can be repaired, escalated, or redirected.';
   modalResult.textContent = '';
   modalResult.className = 'modal-result';
-
   answerButtons.innerHTML = '';
 
   card.choices.forEach((choice, index) => {
@@ -890,7 +499,97 @@ function queueConflict(playerId) {
   modalBackdrop.classList.add('show');
   modalBackdrop.setAttribute('aria-hidden', 'false');
 }
-    
+
+function maybeDeclareWinner(player) {
+  if (state.winner || player.influence < 10) return;
+  state.winner = player.id;
+  modalTitle.textContent = `${player.label} Wins!`;
+  modalQuestion.textContent = `${player.label} reached 10 Influence and became the first player to successfully build enough understanding to claim the Forum.`;
+  modalNote.textContent = 'Press Reset Game to start a new session.';
+  modalResult.textContent = 'Victory condition reached.';
+  modalResult.className = 'modal-result success';
+  answerButtons.innerHTML = '';
+  const btn = document.createElement('button');
+  btn.className = 'answer-btn';
+  btn.textContent = 'Celebrate victory';
+  btn.addEventListener('click', closeQuestion);
+  answerButtons.appendChild(btn);
+  modalBackdrop.classList.add('show');
+  modalBackdrop.setAttribute('aria-hidden', 'false');
+  statusText.textContent = `${player.label} has won the game.`;
+  addLog(`${player.label} reached 10 Influence and won the game.`);
+}
+
+function answerQuestion(selectedIndex) {
+  const queued = state.questionQueue;
+  if (!queued) return;
+
+  const player = state.players.find(p => p.id === queued.playerId);
+  const { question, kind } = queued;
+  const correct = selectedIndex === question.correctIndex;
+
+  answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
+
+  if (correct) {
+    const rewards = question.rewards || {};
+    if (kind === 'temple') {
+      player.harmony += rewards.harmony || 1;
+      player.influence += rewards.influence || 1;
+    } else {
+      player.curiosity += rewards.curiosity || 1;
+      player.harmony += rewards.harmony || 0;
+      player.influence += rewards.influence || 0;
+    }
+
+    const token = findTokenById(queued.tokenId);
+    const bonus = token ? (TOKEN_BONUSES[token.name] || {}) : {};
+    player.curiosity += bonus.curiosity || 0;
+    player.harmony += bonus.harmony || 0;
+    player.influence += bonus.influence || 0;
+
+    if (question.perspective && !player.perspectives.includes(question.perspective)) {
+      player.perspectives.push(question.perspective);
+    }
+
+    addLog(`${player.label}'s ${token ? token.name : 'token'} uncovered new insight.`);
+    modalResult.textContent = `Correct — ${question.rewardText || 'Insight gained.'}`;
+    modalResult.className = 'modal-result success';
+    statusText.textContent = `${player.label} answered correctly and gained rewards.`;
+  } else {
+    const correctAnswer = question.choices?.[question.correctIndex] ?? 'Unknown';
+    modalResult.textContent = `Incorrect — correct answer: ${correctAnswer}`;
+    modalResult.className = 'modal-result failure';
+    addLog(`${player.label} missed a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question.`);
+    statusText.textContent = `${player.label} missed the question and triggered a conflict encounter.`;
+
+    const conflictBtn = document.createElement('button');
+    conflictBtn.className = 'secondary';
+    conflictBtn.textContent = 'Resolve Conflict';
+    conflictBtn.addEventListener('click', () => {
+      closeQuestion();
+      queueConflict(player.id, queued.tokenId);
+    });
+    answerButtons.appendChild(conflictBtn);
+    renderScores();
+    renderMaps();
+    return;
+  }
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'secondary';
+  closeBtn.textContent = 'Continue';
+  closeBtn.addEventListener('click', () => {
+    closeQuestion();
+    renderScores();
+    renderMaps();
+    maybeDeclareWinner(player);
+  });
+
+  answerButtons.appendChild(closeBtn);
+  renderScores();
+  renderMaps();
+}
+
 function answerDialogue(selectedIndex) {
   const queued = state.questionQueue;
   if (!queued || queued.kind !== 'dialogue') return;
@@ -898,8 +597,8 @@ function answerDialogue(selectedIndex) {
   const player = state.players.find(p => p.id === queued.playerId);
   const outcome = queued.card.outcomes?.[selectedIndex];
 
-answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
-  
+  answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
+
   if (!outcome) {
     modalResult.textContent = 'No outcome found for that choice.';
     modalResult.className = 'modal-result failure';
@@ -911,19 +610,18 @@ answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
     if (outcome.conflict) {
       modalResult.textContent = outcome.message || 'Conflict increased.';
       modalResult.className = 'modal-result failure';
-      addLog(`${player.label} chose a tense dialogue path.`);
+      addLog(`${player.label} created tension in dialogue.`);
       statusText.textContent = `${player.label} increased tension during dialogue.`;
     } else {
       const token = findTokenById(queued.tokenId);
-const bonus = token ? (TOKEN_BONUSES[token.name] || {}) : {};
-
+      const bonus = token ? (TOKEN_BONUSES[token.name] || {}) : {};
       player.curiosity += bonus.curiosity || 0;
       player.harmony += bonus.harmony || 0;
       player.influence += bonus.influence || 0;
 
       modalResult.textContent = outcome.message || 'Dialogue resolved positively.';
       modalResult.className = 'modal-result success';
-      addLog(`${player.label} completed a dialogue encounter successfully.`);
+      addLog(`${player.label} built a meaningful connection.`);
       statusText.textContent = `${player.label} gained rewards through dialogue.`;
     }
   }
@@ -950,9 +648,7 @@ function answerConflict(selectedIndex) {
   const player = state.players.find(p => p.id === queued.playerId);
   const outcome = queued.card.outcomes?.[selectedIndex];
 
-  answerButtons.querySelectorAll('button').forEach(btn => {
-    btn.disabled = true;
-  });
+  answerButtons.querySelectorAll('button').forEach(btn => { btn.disabled = true; });
 
   if (!outcome) {
     modalResult.textContent = 'No outcome found for that choice.';
@@ -961,8 +657,6 @@ function answerConflict(selectedIndex) {
     player.curiosity += outcome.curiosity || 0;
     player.harmony += outcome.harmony || 0;
     player.influence += outcome.influence || 0;
-
-    // prevent negatives
     player.curiosity = Math.max(0, player.curiosity);
     player.harmony = Math.max(0, player.harmony);
     player.influence = Math.max(0, player.influence);
@@ -974,131 +668,16 @@ function answerConflict(selectedIndex) {
       statusText.textContent = `${player.label} increased tension.`;
     } else {
       const token = findTokenById(queued.tokenId);
-      const bonusMap = typeof TOKEN_BONUSES !== 'undefined' ? TOKEN_BONUSES : {};
-      const bonus = token ? (bonusMap[token.name] || {}) : {};
-
+      const bonus = token ? (TOKEN_BONUSES[token.name] || {}) : {};
       player.curiosity += bonus.curiosity || 0;
       player.harmony += bonus.harmony || 0;
       player.influence += bonus.influence || 0;
 
       modalResult.textContent = outcome.message || 'Conflict resolved.';
       modalResult.className = 'modal-result success';
-      addLog(`${player.label} resolved a conflict.`);
+      addLog(`${player.label} repaired a difficult moment.`);
       statusText.textContent = `${player.label} handled conflict successfully.`;
     }
-  }
-
-  // 🔥 ALWAYS ADD CONTINUE BUTTON
-  answerButtons.innerHTML += `
-    <button class="secondary" id="continueBtn">Continue</button>
-  `;
-
-  document.getElementById('continueBtn').addEventListener('click', () => {
-    closeQuestion();
-    renderScores();
-    renderMaps();
-    maybeDeclareWinner(player);
-  });
-
-  renderScores();
-  renderMaps();
-}
-    
-    function closeQuestion() {
-  modalBackdrop.classList.remove('show');
-  modalBackdrop.setAttribute('aria-hidden', 'true');
-  state.questionQueue = null;
-}
-
-    function maybeDeclareWinner(player) {
-      if (state.winner || player.influence < 10) return;
-      state.winner = player.id;
-      modalTitle.textContent = `${player.label} Wins!`;
-      modalQuestion.textContent = `${player.label} reached 10 Influence and became the first player to successfully build enough understanding to claim the Forum.`;
-      modalNote.textContent = 'Press Reset Game to start a new session.';
-      modalResult.textContent = 'Victory condition reached.';
-      modalResult.className = 'modal-result success';
-      answerButtons.innerHTML = '';
-      const btn = document.createElement('button');
-      btn.className = 'answer-btn';
-      btn.textContent = 'Celebrate victory';
-      btn.addEventListener('click', closeQuestion);
-      answerButtons.appendChild(btn);
-      modalBackdrop.classList.add('show');
-      modalBackdrop.setAttribute('aria-hidden', 'false');
-      statusText.textContent = `${player.label} has won the game.`;
-      addLog(`${player.label} reached 10 Influence and won the game.`);
-    }
-
-function answerQuestion(selectedIndex) {
-  const queued = state.questionQueue;
-  if (!queued) return;
-
-  const player = state.players.find(p => p.id === queued.playerId);
-  const { question, kind } = queued;
-  const correct = selectedIndex === question.correctIndex;
-
-  answerButtons.querySelectorAll('button').forEach(btn => {
-    btn.disabled = true;
-  });
-
-  if (correct) {
-    const rewards = question.rewards || {};
-
-    if (kind === 'temple') {
-      player.harmony += rewards.harmony || 1;
-      player.influence += rewards.influence || 1;
-    } else {
-      player.curiosity += rewards.curiosity || 1;
-      player.harmony += rewards.harmony || 0;
-      player.influence += rewards.influence || 0;
-    }
-
-    const token = findTokenById(queued.tokenId);
-    const bonusMap = typeof TOKEN_BONUSES !== 'undefined' ? TOKEN_BONUSES : {};
-    const bonus = token ? (bonusMap[token.name] || {}) : {};
-
-    player.curiosity += bonus.curiosity || 0;
-    player.harmony += bonus.harmony || 0;
-    player.influence += bonus.influence || 0;
-
-    if (question.perspective && !player.perspectives.includes(question.perspective)) {
-      player.perspectives.push(question.perspective);
-    }
-
-    modalResult.textContent = `Correct — ${question.rewardText || 'Rewards gained.'}`;
-    modalResult.className = 'modal-result success';
-
-    addLog(
-      `${player.label} answered a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question correctly` +
-      `${question.perspective ? ` and gained ${question.perspective}` : ''}.`
-    );
-
-    statusText.textContent = `${player.label} answered correctly and gained rewards.`;
-  } else {
-    const correctAnswer =
-      question.choices?.[question.correctIndex] ??
-      question.answers?.[question.correctIndex] ??
-      'Unknown';
-
-    modalResult.textContent = `Incorrect — correct answer: ${correctAnswer}`;
-    modalResult.className = 'modal-result failure';
-
-    addLog(`${player.label} missed a ${kind === 'temple' ? 'Temple' : 'Curiosity'} question.`);
-    statusText.textContent = `${player.label} missed the question and triggered a conflict encounter.`;
-
-    const conflictBtn = document.createElement('button');
-    conflictBtn.className = 'secondary';
-    conflictBtn.textContent = 'Resolve Conflict';
-    conflictBtn.addEventListener('click', () => {
-      closeQuestion();
-      queueConflict(player.id);
-    });
-
-    answerButtons.appendChild(conflictBtn);
-    renderScores();
-    renderMaps();
-    return;
   }
 
   const closeBtn = document.createElement('button');
@@ -1115,242 +694,235 @@ function answerQuestion(selectedIndex) {
   renderScores();
   renderMaps();
 }
-    
-    function nextTurn() {
-      if (state.winner) return;
-      state.selectedTokenId = null;
-      state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-      turnLabel.textContent = `Current Turn: ${currentPlayer().label}`;
-      statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
-      selectedTokenText.textContent = 'Selected Token: None';
-      renderBoard();
+
+function nextTurn() {
+  if (state.winner) return;
+  state.selectedTokenId = null;
+  state.hasMovedThisTurn = false;
+  updateSelectedTokenDisplay(null);
+  state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+  turnLabel.textContent = `Current Turn: ${currentPlayer().label}`;
+  statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
+  renderBoard();
+}
+
+function resetGame() {
+  state = createInitialState();
+  turnLabel.textContent = 'Current Turn: Blue';
+  statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
+  updateSelectedTokenDisplay(null);
+  closeQuestion();
+  renderSaying();
+  renderAll();
+}
+
+function moveToken(token, toRow, toCol) {
+  const from = [token.row, token.col];
+  token.row = toRow;
+  token.col = toCol;
+  const type = getCellType(toRow, toCol);
+  const player = state.players.find(p => p.id === token.player);
+
+  if (type === 'C') {
+    token.conflictStreak += 1;
+    if (player.harmony > 0) {
+      player.harmony -= 1;
+      addLog(`${player.label}'s ${token.name} encountered tension on a Conflict Path and lost 1 Harmony.`);
+      statusText.textContent = `${player.label} lost 1 Harmony on a Conflict Path.`;
+    } else if (player.influence > 0) {
+      player.influence -= 1;
+      addLog(`${player.label}'s ${token.name} encountered tension on a Conflict Path and lost 1 Influence.`);
+      statusText.textContent = `${player.label} lost 1 Influence on a Conflict Path.`;
+    } else {
+      addLog(`${player.label}'s ${token.name} crossed a Conflict Path, but had no Harmony or Influence to lose.`);
+      statusText.textContent = `${player.label} crossed a Conflict Path.`;
     }
-
-    function resetGame() {
-      state = createInitialState();
-      turnLabel.textContent = 'Current Turn: Blue';
-      statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
-      selectedTokenText.textContent = 'Selected Token: None';
-      closeQuestion();
-      renderAll();
-      renderSaying();
-    }
-
-    function moveToken(token, toRow, toCol) {
-      const from = [token.row, token.col];
-      token.row = toRow;
-      token.col = toCol;
-      const type = getCellType(toRow, toCol);
-      const player = state.players.find(p => p.id === token.player);
-
-      if (type === 'C') {
-  token.conflictStreak += 1;
-
-  if (player.harmony > 0) {
-    player.harmony -= 1;
-    addLog(`${player.label}'s ${token.name} encountered tension on a Conflict Path and lost 1 Harmony.`);
-    statusText.textContent = `${player.label} lost 1 Harmony on a Conflict Path.`;
-  } else if (player.influence > 0) {
-    player.influence -= 1;
-    addLog(`${player.label}'s ${token.name} encountered tension on a Conflict Path and lost 1 Influence.`);
-    statusText.textContent = `${player.label} lost 1 Influence on a Conflict Path.`;
   } else {
-    addLog(`${player.label}'s ${token.name} crossed a Conflict Path, but had no Harmony or Influence to lose.`);
-    statusText.textContent = `${player.label} crossed a Conflict Path.`;
-  }
-} else {
-  token.conflictStreak = 0;
-}
-
-      if (token.conflictStreak >= 2) {
-        const start = player.start;
-        token.row = start[0];
-        token.col = start[1];
-        token.conflictStreak = 0;
-        addLog(`${player.label}'s ${token.name} token hit two Conflict Paths in a row and returned to start.`);
-        statusText.textContent = 'Two Conflict moves in a row. That token returned to start.';
-      } else {
-        addLog(`${player.label} moved ${token.name} from (${from[0] + 1}, ${from[1] + 1}) to ${describeSpace(type)}.`);
-        statusText.textContent = `${describeSpace(type)} reached.`;
-      }
-
-      if (type === 'H') {
-        player.harmony += 1;
-        addLog(`${player.label} gained 1 Harmony on a Harmony Path.`);
-        statusText.textContent = `${player.label} gained 1 Harmony.`;
-      }
-
-      if (type === 'D') {
-  statusText.textContent = 'Dialogue reached. Choose how to respond.';
-  queueDialogue(token);
-}
-
-      if (type === 'Q') {
-        statusText.textContent = 'Curiosity reached. Answer the question to gain a Curiosity token.';
-        queueQuestion('curiosity', token);
-      }
-
-      if (type === 'T') {
-        statusText.textContent = 'Temple reached. Answer the question to gain Harmony, Influence, and Perspective.';
-        queueQuestion('temple', token);
-      }
-
-      if (type === 'F') {
-        player.influence += 2;
-        addLog(`${player.label} reached the Forum and gained 2 Influence.`);
-        statusText.textContent = `${player.label} reached the Forum and gained 2 Influence.`;
-      }
-
-      state.selectedTokenId = null;
-      selectedTokenText.textContent = 'Selected Token: None';
-      renderBoard();
-      renderScores();
-      renderMaps();
-      maybeDeclareWinner(player);
-    }
-
-    function clickCell(row, col) {
-      if (state.questionQueue || state.winner) return;
-      const clickedTokens = tokensAt(row, col);
-      const activePlayerId = currentPlayer().id;
-
-if (clickedTokens.length) {
-  const ownTokensHere = clickedTokens.filter(t => t.player === activePlayerId);
-
-  if (!ownTokensHere.length) {
-    statusText.textContent = 'You can only select your own token on your turn.';
-    return;
+    token.conflictStreak = 0;
   }
 
-  if (ownTokensHere.length === 1) {
-    const ownToken = ownTokensHere[0];
-    state.selectedTokenId = ownToken.id;
-    selectedTokenText.textContent = `Selected Token: ${ownToken.name}`;
-    statusText.textContent = `${ownToken.name} selected. Click one adjacent or diagonal space.`;
-    renderBoard();
-    return;
+  if (token.conflictStreak >= 2) {
+    const start = player.start;
+    token.row = start[0];
+    token.col = start[1];
+    token.conflictStreak = 0;
+    addLog(`${player.label}'s ${token.name} hit two Conflict Paths in a row and returned to start.`);
+    statusText.textContent = 'Two Conflict moves in a row. That token returned to start.';
+  } else {
+    addLog(`${player.label} moved ${token.name} from (${from[0] + 1}, ${from[1] + 1}) to ${describeSpace(type)}.`);
   }
 
-  showTokenSelection(ownTokensHere);
-  return;
-}
-
-      if (!state.selectedTokenId) {
-        statusText.textContent = 'Select your token first.';
-        return;
-      }
-
-      const token = findTokenById(state.selectedTokenId);
-      const targetType = getCellType(row, col);
-      if (targetType === 'F') {
-        const player = state.players.find(p => p.id === token.player);
-        if (player.harmony < 2 || player.curiosity < 1) {
-          statusText.textContent = 'Forum entry requires at least 2 Harmony and 1 Curiosity.';
-          return;
-        }
-      }
-
-  if (!isLegalMove(token, row, col)) {
-  statusText.textContent = 'Illegal move. Move one adjacent or diagonal space onto an open cell.';
-  return;
-}
-
-statusText.textContent = getMovePreview(token, row, col);
-moveToken(token, row, col);
-
-    function renderBoard() {
-      boardEl.innerHTML = '';
-      const activePlayerId = currentPlayer().id;
-      const selectedToken = state.selectedTokenId ? findTokenById(state.selectedTokenId) : null;
-      const legalMoves = selectedToken ? new Set(legalMovesFor(selectedToken)) : new Set();
-
-      for (let row = 0; row < boardLayout.length; row++) {
-        for (let col = 0; col < boardLayout[row].length; col++) {
-          const type = getCellType(row, col);
-          const cell = document.createElement('button');
-          cell.type = 'button';
-          cell.className = 'cell';
-          cell.addEventListener('click', () => clickCell(row, col));
-          cell.addEventListener('mouseenter', () => {
-  if (state.questionQueue || state.winner || !state.selectedTokenId) return;
-
-  const token = findTokenById(state.selectedTokenId);
-  if (!token) return;
-
-  if (isLegalMove(token, row, col)) {
-    statusText.textContent = getMovePreview(token, row, col);
+  if (type === 'H') {
+    player.harmony += 1;
+    addLog(`${player.label} gained 1 Harmony on a Harmony Path.`);
+    statusText.textContent = `${player.label} gained 1 Harmony.`;
   }
-});
-          
-cell.addEventListener('mouseleave', () => {
+  if (type === 'D') {
+    statusText.textContent = 'Dialogue reached. Choose how to respond.';
+    queueDialogue(token);
+  }
+  if (type === 'Q') {
+    statusText.textContent = 'Curiosity reached. Answer the question to gain a Curiosity token.';
+    queueQuestion('curiosity', token);
+  }
+  if (type === 'T') {
+    statusText.textContent = 'Temple reached. Answer the question to gain Harmony, Influence, and Perspective.';
+    queueQuestion('temple', token);
+  }
+  if (type === 'F') {
+    player.influence += 2;
+    addLog(`${player.label} reached the Forum and gained 2 Influence.`);
+    statusText.textContent = `${player.label} reached the Forum and gained 2 Influence.`;
+  }
+
+  state.selectedTokenId = null;
+  updateSelectedTokenDisplay(null);
+  state.hasMovedThisTurn = true;
+  renderBoard();
+  renderScores();
+  renderMaps();
+  maybeDeclareWinner(player);
+}
+
+function clickCell(row, col) {
   if (state.questionQueue || state.winner) return;
 
-  if (state.selectedTokenId) {
-    const token = findTokenById(state.selectedTokenId);
-    if (token) {
-      statusText.textContent = `${token.name} selected. Click one adjacent or diagonal space.`;
+  if (state.hasMovedThisTurn) {
+    statusText.textContent = 'You already moved this turn. Click End Turn to continue.';
+    return;
+  }
+
+  const clickedTokens = tokensAt(row, col);
+  const activePlayerId = currentPlayer().id;
+
+  if (clickedTokens.length) {
+    const ownTokensHere = clickedTokens.filter(t => t.player === activePlayerId);
+    if (!ownTokensHere.length) {
+      statusText.textContent = 'You can only select your own token on your turn.';
+      return;
+    }
+    if (ownTokensHere.length === 1) {
+      const ownToken = ownTokensHere[0];
+      state.selectedTokenId = ownToken.id;
+      updateSelectedTokenDisplay(ownToken);
+      statusText.textContent = `${ownToken.name} selected. Click one adjacent or diagonal space.`;
+      renderBoard();
+      return;
+    }
+    showTokenSelection(ownTokensHere);
+    return;
+  }
+
+  if (!state.selectedTokenId) {
+    statusText.textContent = 'Select your token first.';
+    return;
+  }
+
+  const token = findTokenById(state.selectedTokenId);
+  const targetType = getCellType(row, col);
+
+  if (targetType === 'F') {
+    const player = state.players.find(p => p.id === token.player);
+    if (player.harmony < 2 || player.curiosity < 1) {
+      statusText.textContent = 'Forum entry requires at least 2 Harmony and 1 Curiosity.';
+      return;
     }
   }
-});
-          if (type === 'H') cell.classList.add('harmony');
-          else if (type === 'C') cell.classList.add('conflict');
-          else if (type === 'D') cell.classList.add('dialogue');
-          else if (type === 'Q') { cell.classList.add('curiosity'); cell.textContent = 'Q'; }
-          else if (type === 'F') { cell.classList.add('forum'); cell.textContent = 'F'; }
-          else if (type === 'T') { cell.classList.add('temple'); cell.textContent = 'T'; }
-          else if (type === 'SB') { cell.classList.add('start-blue'); cell.textContent = 'B'; }
-          else if (type === 'SR') { cell.classList.add('start-red'); cell.textContent = 'R'; }
-          else if (type === 'SG') { cell.classList.add('start-green'); cell.textContent = 'G'; }
-          else if (type === 'SY') { cell.classList.add('start-yellow'); cell.textContent = 'Y'; }
 
-          const here = tokensAt(row, col);
-          if (here.length) {
-            cell.textContent = '';
-            const stack = document.createElement('div');
-            stack.className = 'token-stack';
-            here.forEach(token => {
-              const piece = document.createElement('div');
-              piece.className = `token ${token.player}`;
-              piece.dataset.symbol = token.symbol;
-              if (token.id === state.selectedTokenId) piece.classList.add('selected-token');
-              stack.appendChild(piece);
-            });
-            cell.appendChild(stack);
-            if (here.some(t => t.player === activePlayerId)) cell.classList.add('selectable');
-          }
+  if (!isLegalMove(token, row, col)) {
+    statusText.textContent = 'Illegal move. Move one adjacent or diagonal space onto an open cell.';
+    return;
+  }
 
-          if (legalMoves.has(`${row}-${col}`)) cell.classList.add('legal');
-          boardEl.appendChild(cell);
+  moveToken(token, row, col);
+}
+
+function renderBoard() {
+  boardEl.innerHTML = '';
+  const activePlayerId = currentPlayer().id;
+  const selectedToken = state.selectedTokenId ? findTokenById(state.selectedTokenId) : null;
+  const legalMoves = selectedToken ? new Set(legalMovesFor(selectedToken)) : new Set();
+
+  for (let row = 0; row < boardLayout.length; row++) {
+    for (let col = 0; col < boardLayout[row].length; col++) {
+      const type = getCellType(row, col);
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'cell';
+      cell.addEventListener('click', () => clickCell(row, col));
+
+      cell.addEventListener('mouseenter', () => {
+        if (state.questionQueue || state.winner || !state.selectedTokenId) return;
+        const token = findTokenById(state.selectedTokenId);
+        if (!token) return;
+        if (isLegalMove(token, row, col)) {
+          statusText.textContent = getMovePreview(token, row, col);
         }
+      });
+
+      cell.addEventListener('mouseleave', () => {
+        if (state.questionQueue || state.winner) return;
+        const token = state.selectedTokenId ? findTokenById(state.selectedTokenId) : null;
+        if (token) {
+          statusText.textContent = `${token.name} selected. Click one adjacent or diagonal space.`;
+        }
+      });
+
+      if (type === 'H') cell.classList.add('harmony');
+      else if (type === 'C') cell.classList.add('conflict');
+      else if (type === 'D') cell.classList.add('dialogue');
+      else if (type === 'Q') { cell.classList.add('curiosity'); cell.textContent = 'Q'; }
+      else if (type === 'F') { cell.classList.add('forum'); cell.textContent = 'F'; }
+      else if (type === 'T') { cell.classList.add('temple'); cell.textContent = 'T'; }
+      else if (type === 'SB') { cell.classList.add('start-blue'); cell.textContent = 'B'; }
+      else if (type === 'SR') { cell.classList.add('start-red'); cell.textContent = 'R'; }
+      else if (type === 'SG') { cell.classList.add('start-green'); cell.textContent = 'G'; }
+      else if (type === 'SY') { cell.classList.add('start-yellow'); cell.textContent = 'Y'; }
+
+      const here = tokensAt(row, col);
+      if (here.length) {
+        cell.textContent = '';
+        const stack = document.createElement('div');
+        stack.className = 'token-stack';
+        here.forEach(token => {
+          const piece = document.createElement('div');
+          piece.className = `token ${token.player}`;
+          piece.dataset.symbol = token.symbol;
+          stack.appendChild(piece);
+        });
+        cell.appendChild(stack);
+        if (here.some(t => t.player === activePlayerId)) cell.classList.add('selectable');
       }
-    }
 
-    function renderAll() {
-      renderBoard();
-      renderLog();
-      renderScores();
-      renderMaps();
+      if (legalMoves.has(`${row}-${col}`)) cell.classList.add('legal');
+      boardEl.appendChild(cell);
     }
+  }
+}
 
-    endTurnBtn.addEventListener('click', () => {
-      if (state.questionQueue || state.winner) return;
-      addLog(`${currentPlayer().label} ended their turn.`);
-      nextTurn();
-    });
+function renderAll() {
+  renderBoard();
+  renderLog();
+  renderScores();
+  renderMaps();
+}
+
+endTurnBtn.addEventListener('click', () => {
+  if (state.questionQueue || state.winner) return;
+  addLog(`${currentPlayer().label} ended their turn.`);
+  nextTurn();
+});
 
 resetBtn.addEventListener('click', () => {
   const confirmed = window.confirm('Are you sure you want to reset the game? All current progress will be lost.');
-  if (confirmed) {
-    resetGame();
-  }
+  if (confirmed) resetGame();
 });
-    
- (async function initGame() {
+
+(async function initGame() {
   await loadGameData();
   renderSaying();
   renderAll();
 })();
-  
-  </script>
+</script>
 </body>
 </html>
