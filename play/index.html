@@ -527,29 +527,30 @@ const TOKEN_BONUSES = {
 
     function createInitialState() {
       return {
-        players: playerData.map(p => ({
-          ...p,
-          harmony: 0,
-          influence: 0,
-          curiosity: 0,
-          perspectives: []
-        })),
-        tokens: playerData.flatMap(p => tokenTemplates.map((template, idx) => ({
-          id: `${p.id}-${template.name.toLowerCase()}`,
-          player: p.id,
-          row: p.start[0],
-          col: p.start[1],
-          conflictStreak: 0,
-          symbol: template.symbol,
-          name: template.name,
-          tokenIndex: idx
-        }))),
-        currentPlayerIndex: 0,
-        selectedTokenId: null,
-        logEntries: ['Game started. Blue begins.'],
-        questionQueue: null,
-        winner: null
-      };
+  players: playerData.map(p => ({
+    ...p,
+    harmony: 0,
+    influence: 0,
+    curiosity: 0,
+    perspectives: []
+  })),
+  tokens: playerData.flatMap(p => tokenTemplates.map((template, idx) => ({
+    id: `${p.id}-${template.name.toLowerCase()}`,
+    player: p.id,
+    row: p.start[0],
+    col: p.start[1],
+    conflictStreak: 0,
+    symbol: template.symbol,
+    name: template.name,
+    tokenIndex: idx
+  }))),
+  currentPlayerIndex: 0,
+  selectedTokenId: null,
+  logEntries: ['Game started. Blue begins.'],
+  questionQueue: null,
+  winner: null,
+  hasMovedThisTurn: false
+};
     }
 
     let state = createInitialState();
@@ -1117,24 +1118,25 @@ function answerQuestion(selectedIndex) {
 }
     
     function nextTurn() {
-      if (state.winner) return;
-      state.selectedTokenId = null;
-      state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-      turnLabel.textContent = `Current Turn: ${currentPlayer().label}`;
-      statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
-      selectedTokenText.textContent = 'Selected Token: None';
-      renderBoard();
-    }
+  if (state.winner) return;
+  state.selectedTokenId = null;
+  state.hasMovedThisTurn = false;
+  selectedTokenText.textContent = 'Selected Token: None';
+  state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+  turnLabel.textContent = `Current Turn: ${currentPlayer().label}`;
+  statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
+  renderBoard();
+}
 
     function resetGame() {
-      state = createInitialState();
-      turnLabel.textContent = 'Current Turn: Blue';
-      statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
-      selectedTokenText.textContent = 'Selected Token: None';
-      closeQuestion();
-      renderAll();
-      renderSaying();
-    }
+  state = createInitialState();
+  turnLabel.textContent = 'Current Turn: Blue';
+  statusText.textContent = 'Select one of your three tokens, then click one adjacent or diagonal space.';
+  selectedTokenText.textContent = 'Selected Token: None';
+  closeQuestion();
+  renderSaying();
+  renderAll();
+}
 
     function moveToken(token, toRow, toCol) {
       const from = [token.row, token.col];
@@ -1196,21 +1198,27 @@ function answerQuestion(selectedIndex) {
       }
 
       if (type === 'F') {
-        player.influence += 2;
-        addLog(`${player.label} reached the Forum and gained 2 Influence.`);
-        statusText.textContent = `${player.label} reached the Forum and gained 2 Influence.`;
-      }
+  player.influence += 2;
+  addLog(`${player.label} reached the Forum and gained 2 Influence.`);
+  statusText.textContent = `${player.label} reached the Forum and gained 2 Influence.`;
+}
 
-      state.selectedTokenId = null;
-      selectedTokenText.textContent = 'Selected Token: None';
-      renderBoard();
-      renderScores();
-      renderMaps();
-      maybeDeclareWinner(player);
+state.selectedTokenId = null;
+selectedTokenText.textContent = 'Selected Token: None';
+state.hasMovedThisTurn = true;
+
+renderBoard();
+renderScores();
+renderMaps();
+maybeDeclareWinner(player);
     }
 
     function clickCell(row, col) {
       if (state.questionQueue || state.winner) return;
+      if (state.hasMovedThisTurn) {
+  statusText.textContent = 'You already moved this turn. Click End Turn to continue.';
+  return;
+}
       const clickedTokens = tokensAt(row, col);
       const activePlayerId = currentPlayer().id;
 
