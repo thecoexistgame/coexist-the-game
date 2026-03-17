@@ -1164,8 +1164,13 @@ function answerQuestion(selectedIndex) {
       nextTurn();
     });
 
-    resetBtn.addEventListener('click', resetGame);
-
+resetBtn.addEventListener('click', () => {
+  const confirmed = window.confirm('Are you sure you want to reset the game? All current progress will be lost.');
+  if (confirmed) {
+    resetGame();
+  }
+});
+    
  (async function initGame() {
   await loadGameData();
   renderSaying();
