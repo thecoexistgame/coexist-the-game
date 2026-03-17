@@ -1,0 +1,77 @@
+[
+  {
+    "id": "temple_001",
+    "type": "temple",
+    "title": "Compassion",
+    "prompt": "A teaching emphasizes love for others, forgiveness, and compassion as a path to peace. Which tradition is this most associated with?",
+    "choices": ["Christianity", "Judaism", "Islam"],
+    "correctIndex": 0,
+    "perspective": "✝ Christianity",
+    "rewards": {
+      "harmony": 2,
+      "influence": 1
+    },
+    "rewardText": "+2 Harmony, +1 Influence",
+    "reflection": "How does compassion influence coexistence?"
+  },
+  {
+    "id": "temple_002",
+    "type": "temple",
+    "title": "Submission",
+    "prompt": "A core idea centers around submission to the will of God and living a disciplined life guided by divine law. Which tradition is this?",
+    "choices": ["Islam", "Christianity", "Buddhism"],
+    "correctIndex": 0,
+    "perspective": "☪ Islam",
+    "rewards": {
+      "harmony": 2,
+      "influence": 1
+    },
+    "rewardText": "+2 Harmony, +1 Influence",
+    "reflection": "What role does discipline play in belief systems?"
+  },
+  {
+    "id": "temple_003",
+    "type": "temple",
+    "title": "Enlightenment",
+    "prompt": "A path focused on ending suffering through understanding, mindfulness, and enlightenment. Which tradition is this?",
+    "choices": ["Buddhism", "Taoism", "Hinduism"],
+    "correctIndex": 0,
+    "perspective": "☸ Buddhism",
+    "rewards": {
+      "harmony": 2,
+      "influence": 1
+    },
+    "rewardText": "+2 Harmony, +1 Influence",
+    "reflection": "Can inner peace affect outer coexistence?"
+  },
+  {
+    "id": "temple_004",
+    "type": "temple",
+    "title": "Covenant",
+    "prompt": "A belief centered on a sacred agreement between a people and God, guided by laws and traditions. Which tradition is this?",
+    "choices": ["Judaism", "Christianity", "Islam"],
+    "correctIndex": 0,
+    "perspective": "✡ Judaism",
+    "rewards": {
+      "harmony": 2,
+      "influence": 1
+    },
+    "rewardText": "+2 Harmony, +1 Influence",
+    "reflection": "How do shared laws shape communities?"
+  },
+  {
+    "id": "temple_005",
+    "type": "temple",
+    "title": "Balance",
+    "prompt": "A philosophy emphasizing harmony with the natural flow of the universe and balance between opposing forces. Which philosophy is this?",
+    "choices": ["Taoism", "Buddhism", "Islam"],
+    "correctIndex": 0,
+    "perspective": "☯ Taoism",
+    "rewards": {
+      "harmony": 2,
+      "influence": 1
+    },
+    "rewardText": "+2 Harmony, +1 Influence",
+    "reflection": "What happens when balance is lost?"
+  }
+]
