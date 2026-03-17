@@ -862,8 +862,8 @@ function answerDialogue(selectedIndex) {
   const player = state.players.find(p => p.id === queued.playerId);
   const outcome = queued.card.outcomes?.[selectedIndex];
 
-  answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
-
+ answerButtons.querySelectorAll('button').forEach(btn => (btn.disabled = true));
+  
   if (!outcome) {
     modalResult.textContent = 'No outcome found for that choice.';
     modalResult.className = 'modal-result failure';
