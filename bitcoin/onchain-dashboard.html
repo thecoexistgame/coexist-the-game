@@ -1,1 +1,333 @@
-Test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin On-Chain Decision Dashboard</title>
+  <meta name="description" content="A simple Bitcoin on-chain decision dashboard for tracking LTH SOPR, MVRV Z-Score, NUPL, and RHODL Ratio before making emotional cycle decisions." />
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #171a21;
+      --card2: #1f2430;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --line: rgba(255,255,255,.12);
+      --orange: #f7931a;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --blue: #38bdf8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0%, var(--bg) 42%, #050505 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 56px 20px 28px;
+      text-align: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid rgba(247,147,26,.45);
+      color: var(--orange);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: .82rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      background: rgba(247,147,26,.08);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      max-width: 860px;
+      margin: 18px auto 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 18px 64px;
+    }
+
+    .notice {
+      background: linear-gradient(135deg, rgba(247,147,26,.18), rgba(56,189,248,.1));
+      border: 1px solid rgba(247,147,26,.28);
+      border-radius: 22px;
+      padding: 22px;
+      margin: 22px 0 28px;
+    }
+
+    .notice strong { color: var(--orange); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.25);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.25rem;
+    }
+
+    .source {
+      color: var(--muted);
+      font-size: .88rem;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: .9rem;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #0b0d12;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus { border-color: var(--orange); }
+
+    .result {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.05);
+      min-height: 72px;
+      font-size: .92rem;
+    }
+
+    .green { border-left: 4px solid var(--green); }
+    .yellow { border-left: 4px solid var(--yellow); }
+    .red { border-left: 4px solid var(--red); }
+    .blue { border-left: 4px solid var(--blue); }
+
+    .section-title {
+      margin: 38px 0 14px;
+      font-size: 1.6rem;
+    }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    ul { padding-left: 20px; }
+
+    a {
+      color: var(--orange);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: .9rem;
+      text-align: center;
+      margin-top: 42px;
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .grid, .checklist { grid-template-columns: 1fr; }
+      header { padding-top: 40px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="badge">Bitcoin Decision Architecture</div>
+    <h1>On-Chain Decision Dashboard</h1>
+    <p class="subtitle">A calm weekly checkpoint for reviewing Bitcoin cycle signals before making emotional buy, sell, or hold decisions.</p>
+  </header>
+
+  <main>
+    <section class="notice">
+      <strong>Reminder:</strong> Price is emotion. On-chain data is behavior. Before acting, check the signal, compare it to your written protocol, and only then decide whether action is required.
+    </section>
+
+    <section class="grid" aria-label="Bitcoin on-chain metric cards">
+      <article class="card">
+        <h2>LTH SOPR</h2>
+        <div class="source">Long-Term Holder Spent Output Profit Ratio · CryptoQuant</div>
+        <label for="sopr">Current reading</label>
+        <input id="sopr" type="number" step="0.001" placeholder="Example: 0.979" oninput="evaluateDashboard()" />
+        <div id="soprResult" class="result">Enter the current LTH SOPR reading.</div>
+      </article>
+
+      <article class="card">
+        <h2>MVRV Z-Score</h2>
+        <div class="source">Market Value to Realized Value · MacroMicro / Glassnode</div>
+        <label for="mvrv">Current reading</label>
+        <input id="mvrv" type="number" step="0.01" placeholder="Example: 0.87" oninput="evaluateDashboard()" />
+        <div id="mvrvResult" class="result">Enter the current MVRV Z-Score.</div>
+      </article>
+
+      <article class="card">
+        <h2>NUPL</h2>
+        <div class="source">Net Unrealized Profit/Loss · Glassnode</div>
+        <label for="nupl">Current reading</label>
+        <input id="nupl" type="number" step="0.001" placeholder="Example: 0.286" oninput="evaluateDashboard()" />
+        <div id="nuplResult" class="result">Enter the current NUPL reading.</div>
+      </article>
+
+      <article class="card">
+        <h2>RHODL Ratio</h2>
+        <div class="source">Realized HODL Ratio · Bitcoin Magazine Pro / Glassnode</div>
+        <label for="rhodl">Current reading</label>
+        <input id="rhodl" type="number" step="0.1" placeholder="Example: 4.5" oninput="evaluateDashboard()" />
+        <div id="rhodlResult" class="result">Enter the current RHODL Ratio.</div>
+      </article>
+    </section>
+
+    <h2 class="section-title">Weekly Protocol Check</h2>
+    <section class="checklist">
+      <div class="card">
+        <h2>Before Buying More</h2>
+        <ul>
+          <li>Do not buy simply because price is rising.</li>
+          <li>Check whether MVRV Z-Score is still in a reasonable range.</li>
+          <li>Ask: is this accumulation, mid-cycle, or overheating?</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Before Selling</h2>
+        <ul>
+          <li>Do not sell simply because price is falling.</li>
+          <li>Check whether LTH SOPR suggests capitulation or distribution.</li>
+          <li>Ask: is the market exhausting sellers or entering euphoria?</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Before Calling a Top</h2>
+        <ul>
+          <li>Do not call a top based on feeling alone.</li>
+          <li>Check NUPL for historical euphoria or bearish divergence.</li>
+          <li>Ask: has NUPL reached the danger zone?</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Before Doing Nothing</h2>
+        <ul>
+          <li>HODLing is strongest when it is intentional.</li>
+          <li>Check RHODL to see whether conviction capital dominates.</li>
+          <li>Ask: does my written protocol say action is required?</li>
+        </ul>
+      </div>
+    </section>
+
+    <h2 class="section-title">Metric Sources</h2>
+    <section class="card">
+      <ul>
+        <li><a href="https://cryptoquant.com" target="_blank" rel="noopener">CryptoQuant</a> — LTH SOPR / SOPR-style holder profitability metrics.</li>
+        <li><a href="https://en.macromicro.me/charts/29435/bitcoin-mvrv-zscore" target="_blank" rel="noopener">MacroMicro</a> — MVRV Z-Score chart.</li>
+        <li><a href="https://studio.glassnode.com" target="_blank" rel="noopener">Glassnode Studio</a> — NUPL, MVRV, RHODL, and broader on-chain analytics.</li>
+        <li><a href="https://bitcoinmagazinepro.com" target="_blank" rel="noopener">Bitcoin Magazine Pro</a> — RHODL Ratio and cycle indicators.</li>
+      </ul>
+    </section>
+
+    <p class="footer-note">Educational dashboard only. Not financial advice. Use this as a checklist for disciplined Bitcoin decision-making, not as a trading signal.</p>
+  </main>
+
+  <script>
+    function setResult(id, text, cls) {
+      const el = document.getElementById(id);
+      el.className = 'result ' + cls;
+      el.innerHTML = text;
+    }
+
+    function evaluateDashboard() {
+      const sopr = parseFloat(document.getElementById('sopr').value);
+      const mvrv = parseFloat(document.getElementById('mvrv').value);
+      const nupl = parseFloat(document.getElementById('nupl').value);
+      const rhodl = parseFloat(document.getElementById('rhodl').value);
+
+      if (!isNaN(sopr)) {
+        if (sopr < 1) {
+          setResult('soprResult', '<strong>Below 1.0:</strong> Long-term holders are selling at a loss. Historically, this can reflect capitulation or seller exhaustion.', 'blue');
+        } else if (sopr >= 1 && sopr < 1.2) {
+          setResult('soprResult', '<strong>Near/above 1.0:</strong> Long-term holders are back near profit. Watch direction, not just the number.', 'green');
+        } else {
+          setResult('soprResult', '<strong>Elevated:</strong> Long-term holders may be realizing stronger profits. Watch for distribution behavior.', 'yellow');
+        }
+      }
+
+      if (!isNaN(mvrv)) {
+        if (mvrv < 0) {
+          setResult('mvrvResult', '<strong>Below 0:</strong> Historically deep-value territory relative to aggregate cost basis.', 'green');
+        } else if (mvrv < 2) {
+          setResult('mvrvResult', '<strong>0–2:</strong> Historically favorable accumulation / lower valuation zone.', 'green');
+        } else if (mvrv < 6) {
+          setResult('mvrvResult', '<strong>2–6:</strong> Mid-to-late cycle territory. Position sizing matters.', 'yellow');
+        } else {
+          setResult('mvrvResult', '<strong>6+:</strong> Historically overheated zone. Avoid emotional FOMO buying.', 'red');
+        }
+      }
+
+      if (!isNaN(nupl)) {
+        if (nupl < 0) {
+          setResult('nuplResult', '<strong>Below 0:</strong> Broad unrealized losses. Historically associated with fear/capitulation.', 'green');
+        } else if (nupl < 0.5) {
+          setResult('nuplResult', '<strong>0–0.5:</strong> Recovery / optimism zone. Not historically euphoric.', 'green');
+        } else if (nupl < 0.65) {
+          setResult('nuplResult', '<strong>0.5–0.65:</strong> Strong optimism. Begin watching distribution conditions more closely.', 'yellow');
+        } else if (nupl < 0.75) {
+          setResult('nuplResult', '<strong>0.65–0.75:</strong> Danger zone. Review your written distribution ladder.', 'red');
+        } else {
+          setResult('nuplResult', '<strong>0.75+:</strong> Historical euphoria/top-risk zone. Do not ignore protocol triggers.', 'red');
+        }
+      }
+
+      if (!isNaN(rhodl)) {
+        if (rhodl >= 4) {
+          setResult('rhodlResult', '<strong>Elevated:</strong> Conviction holders may dominate. Historically associated with bottoming structures, but not exact timing.', 'green');
+        } else if (rhodl >= 2) {
+          setResult('rhodlResult', '<strong>Moderate:</strong> Watch whether conviction capital is rising or fading.', 'yellow');
+        } else {
+          setResult('rhodlResult', '<strong>Low:</strong> Speculative participation may be stronger. Combine with NUPL and MVRV before acting.', 'blue');
+        }
+      }
+    }
+  </script>
+</body>
+</html>
